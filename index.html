@@ -3,62 +3,123 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AI HQD XIN CHAO</title>
+  <title>AI HQD — Xin chào</title>
 
-  <!-- math.js -->
+  <!-- math.js (tính toán & symbolic) -->
   <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
 
-  <!-- MathJax để render LaTeX -->
+  <!-- Plotly (dự phòng cho phần đồ thị) -->
+  <script src="https://cdn.plot.ly/plotly-2.20.0.min.js"></script>
+
+  <!-- MathJax để render LaTeX đẹp -->
   <script>
     window.MathJax = {
-      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], macros: {} },
       svg: { fontCache: 'global' }
     };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
+  <!-- Liên kết CSS (mình sẽ gửi style.css sau) -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="container">
-    <header>
-      <h1>🤖 AI HQD XIN CHÀO</h1>
-      <p class="subtitle">Hỗ trợ: đa thức, lũy thừa, product/quotient/chain rule, sin/cos/tan, exp, ln, log, a^x, x^a, ...</p>
+  <div class="page">
+    <!-- Header / Nav -->
+    <header class="topbar">
+      <div class="brand">
+        <img src="assets/logo.png" alt="HQD logo" class="logo" onerror="this.style.display='none'">
+        <div class="titles">
+          <h1>🤖 AI HQD — Xin chào</h1>
+          <p class="tagline">Trợ lý toán: đạo hàm — từng bước chi tiết • đồ thị • đa dạng hàm</p>
+        </div>
+      </div>
+
+      <nav class="menu">
+        <button class="menu-btn active" data-mode="derivative">🧮 Đạo hàm</button>
+        <button class="menu-btn" data-mode="limit">📈 Giới hạn</button>
+        <button class="menu-btn" data-mode="integral">∫ Tích phân</button>
+        <button class="menu-btn" data-mode="plot">📊 Đồ thị</button>
+        <button class="menu-btn" data-mode="about">ℹ️ Giới thiệu</button>
+      </nav>
     </header>
 
-    <section class="card">
-      <label for="expr">Biểu thức (ví dụ: <code>x^3 + 2*x</code>, <code>sin(x^2)</code>, <code>e^x</code>, <code>ln(x)</code>, <code>(x^2+1)/(x-1)</code>)</label>
-      <input id="expr" placeholder="Nhập biểu thức (ví dụ: x^3 + 2*x)" />
+    <!-- Main content -->
+    <main class="main">
+      <!-- Left column: input & options -->
+      <section class="panel panel-input">
+        <div class="welcome">
+          <div class="welcome-text">
+            <strong>Xin chào!</strong>
+            <span>Gõ hàm ở ô dưới rồi nhấn <em>Tính đạo hàm</em>. Bạn có thể nhập nhiều dạng: đa thức, sin, cos, tan, exp, ln, a^x, x^a, sqrt, log(x,10), v.v.</span>
+          </div>
+        </div>
 
-      <div class="row">
-        <label for="variable">Biến: </label>
-        <input id="variable" value="x" size="3" />
-        <button id="deriveBtn" class="btn">Tính đạo hàm</button>
-        <button id="clearBtn" class="btn ghost">Xóa</button>
+        <label for="expr">Biểu thức:</label>
+        <input id="expr" type="text" placeholder="Ví dụ: sin(x^2) + 3*x^3" autocomplete="off">
+
+        <div class="options-row">
+          <label for="variable">Biến:</label>
+          <input id="variable" type="text" value="x" size="3">
+
+          <label for="order">Bậc đạo hàm:</label>
+          <select id="order">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+
+          <button id="deriveBtn" class="primary">Tính đạo hàm</button>
+          <button id="clearBtn" class="ghost">Xóa</button>
+        </div>
+
+        <div class="advanced">
+          <label><input id="showSteps" type="checkbox" checked> Hiển thị từng bước</label>
+          <label><input id="useLatex" type="checkbox" checked> Hiển thị LaTeX (MathJax)</label>
+          <label title="Khi bật, sẽ dùng math.js để cố gắng rút gọn biểu thức"><input id="simplifyResult" type="checkbox" checked> Rút gọn kết quả</label>
+        </div>
+
+        <div class="quick-examples">
+          <strong>Ví dụ nhanh:</strong>
+          <button class="example">x^3 + 2*x</button>
+          <button class="example">sin(x^2)</button>
+          <button class="example">e^(x^2)</button>
+          <button class="example">(x^2+1)/(x-1)</button>
+        </div>
+      </section>
+
+      <!-- Right column: results -->
+      <section class="panel panel-results">
+        <h2>Kết quả</h2>
+
+        <div class="result-block">
+          <div class="label">Đạo hàm (rút gọn):</div>
+          <pre id="derivative" class="output">—</pre>
+          <div id="derivative-latex" class="latex"></div>
+        </div>
+
+        <div class="result-block steps-block">
+          <div class="label">Lời giải từng bước:</div>
+          <div id="steps" class="steps">Nhấn "Tính đạo hàm" để xem lời giải từng bước.</div>
+        </div>
+
+        <div class="result-block plot-block">
+          <div class="label">Đồ thị (tùy chọn):</div>
+          <div id="plot" class="plot" aria-hidden="true"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>© <strong>AI HQD</strong> — Phiên bản demo. Muốn thêm tính năng, hãy nói "mở rộng".</div>
+      <div class="footer-links">
+        <a href="#" id="helpLink">Trợ giúp</a> · <a href="#" id="reportLink">Báo lỗi</a>
       </div>
-      <div class="hint">Gợi ý: dùng ^ cho lũy thừa; dùng * cho nhân; exp(x) hoặc e^x; log(x) = ln(x), log(x,10) cho log cơ số 10.</div>
-    </section>
+    </footer>
+  </div>
 
-    <section class="card results">
-      <h2>Kết quả</h2>
-
-      <div class="result-block">
-        <div class="label">Đạo hàm (rút gọn):</div>
-        <pre id="derivative" class="output">—</pre>
-        <div id="derivative-latex" class="latex"></div>
-      </div>
-
-      <div class="result-block">
-        <div class="label">Lời giải từng bước (chi tiết):</div>
-        <div id="steps" class="steps">Nhấn "Tính đạo hàm" để xem các bước.</div>
-      </div>
-    </section>
-
-    <footer class="foot">Nếu biểu thức rất phức tạp, app sẽ cố gắng sử dụng math.js để lấy đạo hàm và minh họa các bước chính.</footer>
-  </main>
-
+  <!-- Liên kết script chính (mình sẽ gửi script.js tiếp theo) -->
   <script src="script.js"></script>
 </body>
 </html>
-
-
