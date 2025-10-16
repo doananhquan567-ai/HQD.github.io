@@ -1,121 +1,51 @@
-function analyzeNodeForSteps(node, variable){
+function explainDerivativeSGK(expr, variable) {
   const steps = [];
-  if(!node) return steps;
+  steps.push({
+    title: "Bước 1",
+    content: `Xét hàm số \\( y = ${expr} \\). Ta cần tìm đạo hàm của \\( y \\) theo \\( ${variable} \\).`
+  });
 
-  const add = (txt, latex) => steps.push({ text: txt, latex: latex || '' });
+  const derivative = math.derivative(expr, variable).toString();
+  const simplified = math.simplify(derivative).toString();
 
-  const type = node.type;
+  steps.push({
+    title: "Bước 2",
+    content: "Áp dụng các quy tắc đạo hàm cơ bản và tính từng phần theo thứ tự."
+  });
 
-  // 1️⃣ Hằng số
-  if(type === 'ConstantNode'){
-    add(`Biểu thức là một hằng số nên đạo hàm bằng 0.`, 
-        `\\frac{d}{d${variable}}(${toTexFromString(node.toString())}) = 0`);
-    return steps;
-  }
+  steps.push({
+    title: "Bước 3",
+    content: `Thực hiện phép đạo hàm: \\( y' = ${toTexFromString(derivative)} \\)`
+  });
 
-  // 2️⃣ Biến số
-  if(type === 'SymbolNode'){
-    if(node.name === variable){
-      add(`Biểu thức là biến ${variable}, nên đạo hàm bằng 1.`,
-          `\\frac{d}{d${variable}}${toTexFromString(variable)} = 1`);
-    } else {
-      add(`Biểu thức là biến ${node.name}, không phụ thuộc vào ${variable}, nên coi là hằng → đạo hàm bằng 0.`,
-          `\\frac{d}{d${variable}}${toTexFromString(node.toString())} = 0`);
-    }
-    return steps;
-  }
+  steps.push({
+    title: "Bước 4",
+    content: `Rút gọn biểu thức: \\( y' = ${toTexFromString(simplified)} \\)`
+  });
 
-  // 3️⃣ Dấu ngoặc
-  if(type === 'ParenthesisNode'){
-    add(`Ta lấy đạo hàm phần biểu thức bên trong dấu ngoặc.`,
-        ``);
-    return steps.concat(analyzeNodeForSteps(node.content, variable));
-  }
+  steps.push({
+    title: "Kết luận",
+    content: `Vậy đạo hàm của \\( y = ${expr} \\) là: \\( y' = ${toTexFromString(simplified)} \\).`
+  });
 
-  // 4️⃣ Toán tử
-  if(type === 'OperatorNode'){
-    const op = node.op;
-
-    // Tổng / Hiệu
-    if(op === '+' || op === '-'){
-      add(`Biểu thức là tổng (hoặc hiệu) của hai hàm số.  
-Theo quy tắc: Đạo hàm của tổng bằng tổng các đạo hàm; đạo hàm của hiệu bằng hiệu các đạo hàm.`,
-          `\\frac{d}{d${variable}}(u \\pm v) = u' \\pm v'`);
-      node.args.forEach(arg => steps.push(...analyzeNodeForSteps(arg, variable)));
-      return steps;
-    }
-
-    // Tích
-    if(op === '*'){
-      add(`Biểu thức là tích của hai (hoặc nhiều) hàm số.  
-Theo quy tắc nhân: Đạo hàm của tích bằng đạo hàm của hàm thứ nhất nhân với hàm thứ hai, cộng với hàm thứ nhất nhân với đạo hàm của hàm thứ hai.`,
-          `\\frac{d}{d${variable}}(uv) = u'v + uv'`);
-      node.args.forEach(arg => steps.push(...analyzeNodeForSteps(arg, variable)));
-      return steps;
-    }
-
-    // Thương
-    if(op === '/'){
-      add(`Biểu thức là thương của hai hàm số.  
-Theo quy tắc thương: Đạo hàm của thương bằng (đạo hàm của tử nhân với mẫu, trừ đi tử nhân với đạo hàm của mẫu) chia cho bình phương của mẫu.`,
-          `\\frac{d}{d${variable}}\\left(\\frac{u}{v}\\right) = \\frac{u'v - uv'}{v^2}`);
-      node.args.forEach(arg => steps.push(...analyzeNodeForSteps(arg, variable)));
-      return steps;
-    }
-
-    // Lũy thừa
-    if(op === '^'){
-      add(`Biểu thức là lũy thừa.  
-Nếu số mũ là hằng, ta áp dụng công thức:  
-\\( (x^n)' = n·x^{n-1} \\).  
-Nếu số mũ cũng phụ thuộc vào ${variable}, ta dùng quy tắc tổng quát cho hàm dạng \\( f(x)^{g(x)} \\).`,
-          ``);
-      node.args.forEach(arg => steps.push(...analyzeNodeForSteps(arg, variable)));
-      return steps;
-    }
-  }
-
-  // 5️⃣ Hàm số
-  if(type === 'FunctionNode'){
-    const fnName = (node.fn && (node.fn.name || node.name)) || '';
-
-    if(/sin/i.test(fnName)){
-      add(`Biểu thức là hàm sin.  
-Theo bảng đạo hàm cơ bản: \\( (\\sin u)' = \\cos u · u' \\).`,
-          `\\frac{d}{d${variable}}\\sin(u) = \\cos(u)u'`);
-    } else if(/cos/i.test(fnName)){
-      add(`Biểu thức là hàm cos.  
-Theo bảng đạo hàm cơ bản: \\( (\\cos u)' = -\\sin u · u' \\).`,
-          `\\frac{d}{d${variable}}\\cos(u) = -\\sin(u)u'`);
-    } else if(/tan/i.test(fnName)){
-      add(`Biểu thức là hàm tan.  
-Theo bảng đạo hàm cơ bản: \\( (\\tan u)' = \\dfrac{u'}{\\cos^2 u} \\).`,
-          `\\frac{d}{d${variable}}\\tan(u) = \\frac{u'}{\\cos^2(u)}`);
-    } else if(/exp|e/.test(fnName)){
-      add(`Biểu thức là hàm mũ cơ số e.  
-Theo bảng đạo hàm cơ bản: \\( (e^u)' = e^u · u' \\).`,
-          `\\frac{d}{d${variable}}e^{u} = e^{u}u'`);
-    } else if(/log|ln/i.test(fnName)){
-      add(`Biểu thức là hàm logarit tự nhiên (ln).  
-Theo bảng đạo hàm cơ bản: \\( (\\ln u)' = \\dfrac{u'}{u} \\).`,
-          `\\frac{d}{d${variable}}\\ln(u) = \\frac{u'}{u}`);
-    } else if(/sqrt/i.test(fnName)){
-      add(`Biểu thức là căn bậc hai.  
-Theo bảng đạo hàm cơ bản: \\( (\\sqrt{u})' = \\dfrac{u'}{2\\sqrt{u}} \\).`,
-          `\\frac{d}{d${variable}}\\sqrt{u} = \\frac{u'}{2\\sqrt{u}}`);
-    } else {
-      add(`Biểu thức là hàm ${fnName}(u).  
-Ta áp dụng quy tắc đạo hàm hàm hợp: Đạo hàm của hàm ngoài nhân với đạo hàm của phần trong.`,
-          ``);
-    }
-
-    node.args.forEach(arg => steps.push(...analyzeNodeForSteps(arg, variable)));
-    return steps;
-  }
-
-  // 6️⃣ Trường hợp khác
-  add(`Biểu thức chưa nhận diện được rõ dạng.  
-Ta sẽ để hệ thống tự tính đạo hàm và rút gọn.`,
-      ``);
   return steps;
+}
+function generateSteps(expr, variable){
+  try {
+    return explainDerivativeSGK(expr, variable);
+  } catch(e) {
+    console.error("Error generating SGK steps:", e);
+    return [{title: "Lỗi", content: "Không thể sinh lời giải chi tiết cho biểu thức này."}];
+  }
+}
+function showStepsOnUI(steps){
+  const container = document.getElementById('stepsContainer');
+  container.innerHTML = '<h3>📘 Lời giải chi tiết (Chuẩn SGK)</h3>';
+  steps.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'step';
+    div.innerHTML = `<b>${s.title}.</b> ${s.content}`;
+    container.appendChild(div);
+  });
+  if(window.MathJax) MathJax.typeset(); // làm công thức hiển thị đẹp
 }
