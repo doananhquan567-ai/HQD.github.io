@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 AI Hỗ Trợ Giải Toán</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>🤖 AI Hỗ Trợ Giải Toán</h1>
+
+    <div class="chat-box" id="chat-box">
+        <div class="ai-message">Xin chào! Hãy nhập phép toán bạn muốn giải nhé 😄</div>
+    </div>
+
+    <div class="input-box">
+        <input type="text" id="user-input" placeholder="Nhập ví dụ: (3 + 2) = ? hoặc 5*6..." />
+        <button id="send-btn">Gửi</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
