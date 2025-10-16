@@ -1,180 +1,70 @@
-<!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AI HQD — Xin chào</title>
+// Nạp thư viện Math.js
+const mathScript = document.createElement('script');
+mathScript.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.5.0/math.min.js";
+document.head.appendChild(mathScript);
 
-  <!-- math.js (tính toán & symbolic) -->
-  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
+mathScript.onload = () => {
+  const input = document.getElementById("expression");
+  const solveBtn = document.getElementById("solveBtn");
+  const solution = document.getElementById("solution");
+  const chatLog = document.getElementById("chat-log");
+  const sendBtn = document.getElementById("send-btn");
+  const userInput = document.getElementById("user-input");
 
-  <!-- Plotly (dự phòng cho phần đồ thị) -->
-  <script src="https://cdn.plot.ly/plotly-2.20.0.min.js"></script>
+  // 🧮 Giải đạo hàm
+  solveBtn.addEventListener("click", () => {
+    const expr = input.value.trim();
+    if (!expr) {
+      solution.innerHTML = "❗Vui lòng nhập biểu thức.";
+      return;
+    }
 
-  <!-- MathJax để render LaTeX đẹp -->
-  <script>
-    window.MathJax = {
-      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], macros: {} },
-      svg: { fontCache: 'global' }
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    try {
+      const simplified = math.simplify(expr);
+      const derivative = math.derivative(simplified, 'x');
+      const steps = [
+        `Bước 1️⃣: Biểu thức ban đầu: <b>${expr}</b>`,
+        `Bước 2️⃣: Rút gọn lại: <b>${simplified}</b>`,
+        `Bước 3️⃣: Lấy đạo hàm theo x.`,
+        `Bước 4️⃣: Kết quả cuối cùng: <b>${derivative}</b>`
+      ];
+      solution.innerHTML = steps.join('<br>');
+    } catch (err) {
+      solution.innerHTML = "⚠️ Lỗi cú pháp, vui lòng kiểm tra lại biểu thức.";
+    }
+  });
 
-  <!-- Liên kết CSS (mình sẽ gửi style.css sau) -->
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="page">
-    <!-- Header / Nav -->
-    <header class="topbar">
-      <div class="brand">
-        <img src="assets/logo.png" alt="HQD logo" class="logo" onerror="this.style.display='none'">
-        <div class="titles">
-          <h1>🤖 AI HQD — Xin chào</h1>
-          <p class="tagline">Trợ lý toán: đạo hàm — từng bước chi tiết • đồ thị • đa dạng hàm</p>
-        </div>
-      </div>
+  // 💬 Chat AI cơ bản
+  const responses = {
+    "ai tạo ra bạn": "Mình được tạo ra bởi Đoàn Anh Quân — người có niềm đam mê kết hợp toán học và công nghệ.",
+    "bạn tên gì": "Mình là AI HQD — trợ lý học toán thông minh.",
+    "bạn biết gì về đạo hàm": "Đạo hàm cho biết tốc độ thay đổi của hàm số, mình có thể tính và giải thích từng bước cho bạn!",
+    "xin chào": "Xin chào! Mình là HQD AI, sẵn sàng giúp bạn giải toán!",
+    "cảm ơn": "Rất vui được giúp bạn 💙"
+  };
 
-      <nav class="menu">
-        <button class="menu-btn active" data-mode="derivative">🧮 Đạo hàm</button>
-        <button class="menu-btn" data-mode="limit">📈 Giới hạn</button>
-        <button class="menu-btn" data-mode="integral">∫ Tích phân</button>
-        <button class="menu-btn" data-mode="plot">📊 Đồ thị</button>
-        <button class="menu-btn" data-mode="about">ℹ️ Giới thiệu</button>
-      </nav>
-    </header>
+  sendBtn.addEventListener("click", () => {
+    const text = userInput.value.trim();
+    if (!text) return;
+    addMessage("user", text);
 
-    <!-- Main content -->
-    <main class="main">
-      <!-- Left column: input & options -->
-      <section class="panel panel-input">
-        <div class="welcome">
-          <div class="welcome-text">
-            <strong>Xin chào!</strong>
-            <span>Gõ hàm ở ô dưới rồi nhấn <em>Tính đạo hàm</em>. Bạn có thể nhập nhiều dạng: đa thức, sin, cos, tan, exp, ln, a^x, x^a, sqrt, log(x,10), v.v.</span>
-          </div>
-        </div>
+    let reply = "Mình chưa hiểu rõ câu hỏi, bạn có thể nói lại không?";
+    for (let key in responses) {
+      if (text.toLowerCase().includes(key)) {
+        reply = responses[key];
+        break;
+      }
+    }
 
-        <label for="expr">Biểu thức:</label>
-        <input id="expr" type="text" placeholder="Ví dụ: sin(x^2) + 3*x^3" autocomplete="off">
+    setTimeout(() => addMessage("ai", reply), 500);
+    userInput.value = "";
+  });
 
-        <div class="options-row">
-          <label for="variable">Biến:</label>
-          <input id="variable" type="text" value="x" size="3">
-
-          <label for="order">Bậc đạo hàm:</label>
-          <select id="order">
-            <option value="1" selected>1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-          </select>
-
-          <button id="deriveBtn" class="primary">Tính đạo hàm</button>
-          <button id="clearBtn" class="ghost">Xóa</button>
-        </div>
-
-        <div class="advanced">
-          <label><input id="showSteps" type="checkbox" checked> Hiển thị từng bước</label>
-          <label><input id="useLatex" type="checkbox" checked> Hiển thị LaTeX (MathJax)</label>
-          <label title="Khi bật, sẽ dùng math.js để cố gắng rút gọn biểu thức"><input id="simplifyResult" type="checkbox" checked> Rút gọn kết quả</label>
-        </div>
-
-        <div class="quick-examples">
-          <strong>Ví dụ nhanh:</strong>
-          <button class="example">x^3 + 2*x</button>
-          <button class="example">sin(x^2)</button>
-          <button class="example">e^(x^2)</button>
-          <button class="example">(x^2+1)/(x-1)</button>
-        </div>
-      </section>
-
-      <!-- Right column: results -->
-      <section class="panel panel-results">
-        <h2>Kết quả</h2>
-
-        <div class="result-block">
-          <div class="label">Đạo hàm (rút gọn):</div>
-          <pre id="derivative" class="output">—</pre>
-          <div id="derivative-latex" class="latex"></div>
-        </div>
-
-        <div class="result-block steps-block">
-          <div class="label">Lời giải từng bước:</div>
-          <div id="steps" class="steps">Nhấn "Tính đạo hàm" để xem lời giải từng bước.</div>
-        </div>
-
-        <div class="result-block plot-block">
-          <div class="label">Đồ thị (tùy chọn):</div>
-          <div id="plot" class="plot" aria-hidden="true"></div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="footer">
-      <div>© <strong>AI HQD</strong> — Phiên bản demo. Muốn thêm tính năng, hãy nói "mở rộng".</div>
-      <div class="footer-links">
-        <a href="#" id="helpLink">Trợ giúp</a> · <a href="#" id="reportLink">Báo lỗi</a>
-      </div>
-    </footer>
-  </div>
-
-  <!-- Liên kết script chính (mình sẽ gửi script.js tiếp theo) -->
-  <script src="script.js"></script>
-</body>
-</html>
-<!-- ============ PHẦN CHAT HQD ============ -->
-<div class="panel chat-panel">
-  <h2>💬 Trò chuyện cùng AI HQD</h2>
-  <div id="chatbox">
-    <div class="bot-msg">Xin chào! Tôi là <strong>AI HQD</strong> — trợ lý toán học của bạn 😄<br>
-    Hãy hỏi tôi bất kỳ điều gì nhé!</div>
-  </div>
-  
-  <div class="chat-input-row">
-    <input id="userInput" type="text" placeholder="Nhập câu hỏi của bạn..." onkeydown="if(event.key==='Enter'){sendMessage();}">
-    <button onclick="sendMessage()">Gửi</button>
-  </div>
-</div>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI HQD — Trợ lý Giải Đạo Hàm Thông Minh</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-  <header>
-    <h1>🤖 AI HQD xin chào</h1>
-    <p class="subtitle">Trợ lý toán học thông minh — Giải đạo hàm chi tiết, dễ hiểu nhất</p>
-  </header>
-
-  <main>
-    <section class="solver">
-      <h2>📘 Nhập biểu thức đạo hàm cần giải</h2>
-      <input type="text" id="expression" placeholder="Ví dụ: x^3 + 2x^2 - 5x + 7" />
-      <button id="solveBtn">Giải đạo hàm</button>
-      <div id="solution"></div>
-    </section>
-
-    <section class="chatbox">
-      <h2>💬 Trò chuyện cùng AI HQD</h2>
-      <div id="chat-log"></div>
-      <div class="chat-input">
-        <input type="text" id="user-input" placeholder="Nhập câu hỏi... (ví dụ: Ai tạo ra bạn?)">
-        <button id="send-btn">Gửi</button>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <p>© 2025 HQD AI — Phiên bản học thuật thông minh do bạn <strong>Đoàn Anh Quân</strong> phát triển</p>
-  </footer>
-
-  <script src="script.js"></script>
-</body>
-</html>
-
-
+  function addMessage(sender, message) {
+    const div = document.createElement("div");
+    div.classList.add("chat-message", sender);
+    div.innerHTML = `<b>${sender === "user" ? "👤 Bạn" : "🤖 HQD AI"}:</b> ${message}`;
+    chatLog.appendChild(div);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+};
