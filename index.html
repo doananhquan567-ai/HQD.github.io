@@ -3,140 +3,98 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AI HQD — Trợ lý Giải Đạo Hàm (Chi tiết, SGK)</title>
+  <title>AI HQD — Trợ lý Giải Đạo Hàm (SGK)</title>
   <meta name="description" content="AI HQD — giải đạo hàm từng bước theo chuẩn SGK, hiển thị LaTeX & đồ thị tương tác" />
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
-  <!-- Math.js (symbolic & numeric) -->
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Math.js -->
   <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
 
-  <!-- Plotly (interactive plots) -->
+  <!-- Plotly -->
   <script src="https://cdn.plot.ly/plotly-2.20.0.min.js"></script>
 
-  <!-- MathJax for LaTeX rendering -->
+  <!-- MathJax (single include) -->
   <script>
     window.MathJax = {
       tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], tags: 'ams' },
-      svg: { fontCache: 'global' }
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] }
     };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer></script>
-
-  <!-- Link to style (mình sẽ gửi style.css next) -->
-  <link rel="stylesheet" href="style.css">
-
-  <meta name="theme-color" content="#0f172a">
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" defer></script>
 </head>
 
 <body>
-  <!-- ================= HEADER ================= -->
-  <header class="site-header" role="banner">
-    <div class="container header-inner">
-      <div class="brand">
-        <!-- optional: place assets/logo.svg in folder (if not present it's hidden) -->
-        <img src="assets/logo.svg" alt="AI HQD" class="logo" onerror="this.style.display='none'">
-        <div class="brand-text">
-          <h1 class="site-title">AI HQD</h1>
-          <p class="site-sub">Trợ lý Giải Đạo Hàm — Chi tiết như SGK · Sang trọng & Tối giản</p>
-        </div>
+  <!-- Clean header with two prominent texts requested -->
+  <header class="site-header">
+    <div class="header-inner container">
+      <div class="greeting">
+        <div class="greet-main">Al HQD CIN CHÀO</div>
+        <div class="greet-sub">giám đốc sản xuất là <span class="director">ANH QUÂN ĐẸP TRAI</span></div>
       </div>
 
-      <nav class="top-nav" role="navigation" aria-label="Chức năng">
-        <button class="nav-btn active" data-section="solve">Giải đạo hàm</button>
-        <button class="nav-btn" data-section="chat">Trò chuyện</button>
-        <button class="nav-btn" data-section="history">Lịch sử</button>
-        <button id="tourBtn" class="nav-btn ghost">Hướng dẫn</button>
+      <nav class="tiny-nav" aria-label="tools">
+        <button id="toggle-ui" class="nav-small">Hiện / Ẩn công cụ</button>
       </nav>
     </div>
   </header>
 
-  <!-- ================= MAIN ================= -->
-  <main class="container main-grid" role="main">
-    <!-- LEFT: Input, options, chat -->
-    <section class="card panel-left" id="panel-left" aria-labelledby="left-title">
-      <h2 id="left-title" class="panel-title">Nhập biểu thức</h2>
-
-      <!-- Input (user types expression) -->
-      <label for="exprInput" class="sr-only">Biểu thức</label>
-      <input id="exprInput" class="expr-input" type="text" placeholder="Ví dụ: sin(x^2) + 3*x^3  — dùng ^ cho lũy thừa" aria-label="Biểu thức cần đạo hàm">
-
-      <div class="controls-row">
-        <div class="control-inline">
+  <!-- Main app: hidden by default to keep UI minimal; toggle button will show/hide -->
+  <main class="container main-app" id="mainApp">
+    <section class="card input-card">
+      <label class="sr-only" for="exprInput">Biểu thức</label>
+      <input id="exprInput" class="expr-input" type="text" placeholder="Ví dụ: sin(x^2) + 3*x^3" aria-label="Biểu thức cần đạo hàm">
+      <div class="row">
+        <div class="small">
           <label for="variableInput">Biến</label>
-          <input id="variableInput" class="small-input" type="text" value="x" maxlength="3" aria-label="Biến đạo hàm" />
+          <input id="variableInput" class="small-input" type="text" value="x" maxlength="3" />
         </div>
-
-        <div class="control-inline">
+        <div class="small">
           <label for="orderSelect">Bậc</label>
-          <select id="orderSelect" aria-label="Bậc đạo hàm">
+          <select id="orderSelect">
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
-            <option value="4">4</option>
           </select>
         </div>
-
-        <div class="control-inline">
+        <div class="small">
           <label class="checkbox-inline"><input id="showSteps" type="checkbox" checked /> Hiển thị bước</label>
         </div>
-
-        <div class="control-actions">
+        <div class="actions">
           <button id="deriveBtn" class="btn primary">Tính đạo hàm</button>
           <button id="clearBtn" class="btn ghost">Xóa</button>
         </div>
       </div>
 
-      <!-- Quick examples -->
       <div class="examples">
-        <span class="ex-title">Ví dụ nhanh:</span>
         <button class="example-btn" data-expr="x^3 + 2*x">x^3 + 2x</button>
         <button class="example-btn" data-expr="sin(x^2)">sin(x^2)</button>
         <button class="example-btn" data-expr="e^(x)">e^x</button>
         <button class="example-btn" data-expr="(x^2+1)/(x-1)">(x^2+1)/(x-1)</button>
       </div>
-
-      <!-- Mini chat (quick questions) -->
-      <div class="mini-chat" aria-hidden="false">
-        <div class="mini-chat-title">Chat nhanh</div>
-        <div class="mini-chat-row">
-          <input id="miniChatInput" type="text" placeholder="Hỏi: Ai tạo ra bạn?" aria-label="Chat nhanh">
-          <button id="miniChatSend" class="btn small">Gửi</button>
-        </div>
-      </div>
-
-      <div class="onboard-note">
-        <strong>Mẹo:</strong> Dùng `^` cho lũy thừa và `*` cho nhân. Bạn có thể nhập biểu thức với ngoặc: `(3*x+1)^2`.
-      </div>
     </section>
 
-    <!-- RIGHT: Result, steps, plot -->
-    <aside class="card panel-right" id="panel-right" aria-labelledby="right-title">
-      <h2 id="right-title" class="panel-title">Kết quả & Lời giải</h2>
-
-      <!-- Summary -->
-      <div class="result-summary">
+    <aside class="card right-card">
+      <div class="result-block">
         <div class="label">Đạo hàm (rút gọn)</div>
-        <pre id="resultText" class="result-text" aria-live="polite">—</pre>
+        <pre id="resultText" class="result-text">—</pre>
         <div id="resultLatex" class="result-latex" aria-hidden="false"></div>
       </div>
 
-      <!-- Steps -->
-      <div class="steps-area">
-        <div class="label">Lời giải từng bước (chuẩn SGK)</div>
-        <div id="stepsContainer" class="steps-container">Nhấn "Tính đạo hàm" để xem bước giải theo trình tự: nhận dạng loại, áp dụng quy tắc, rút gọn.</div>
+      <div class="steps-block">
+        <div class="label">Lời giải từng bước (SGK)</div>
+        <div id="stepsContainer" class="steps-container">Nhấn "Tính đạo hàm" để xem lời giải.</div>
       </div>
 
-      <!-- Plot -->
-      <div class="plot-area">
+      <div class="plot-block">
         <div class="label">Đồ thị (f và f')</div>
         <div id="plotRoot" class="plot-root" role="img" aria-label="Đồ thị hàm số"></div>
-
         <div class="plot-controls">
-          <label for="xMin">xMin</label>
           <input id="xMin" class="plot-range" type="number" value="-6" step="1" />
-          <label for="xMax">xMax</label>
           <input id="xMax" class="plot-range" type="number" value="6" step="1" />
           <button id="plotUpdate" class="btn small ghost">Cập nhật</button>
         </div>
@@ -144,56 +102,11 @@
     </aside>
   </main>
 
-  <!-- FOOTER -->
-  <footer class="site-footer" role="contentinfo">
-    <div class="container footer-inner">
-      <div>© <strong>AI HQD</strong> — Trợ lý Giải Đạo Hàm • Thiết kế tối giản & sang trọng</div>
-      <div class="footer-right">Phiên bản demo — có thể tích hợp OpenAI server-side</div>
-    </div>
+  <footer class="site-footer">
+    <div class="container">© AI HQD — Demo</div>
   </footer>
 
-  <!-- ONBOARDING MODAL -->
-  <div id="tourModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal-card" role="document">
-      <button id="tourClose" class="modal-close" aria-label="Đóng">&times;</button>
-      <h3>Hướng dẫn nhanh</h3>
-      <ol class="tour-steps">
-        <li>Nhập biểu thức (dùng ^ cho lũy thừa). Ví dụ: <code>sin(x^2)</code>.</li>
-        <li>Chọn biến (mặc định x) và bậc đạo hàm.</li>
-        <li>Nhấn <strong>Tính đạo hàm</strong> → xem lời giải từng bước và LaTeX.</li>
-        <li>Nhấn <strong>Cập nhật</strong> ở đồ thị để thay đổi khoảng x.</li>
-      </ol>
-      <div class="modal-actions">
-        <button id="tourGotIt" class="btn primary">Hiểu rồi</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Live status for screen readers -->
-  <div id="ariaStatus" class="sr-only" aria-live="polite"></div>
-
-  <!-- Link to script (mình sẽ gửi script.js next) -->
+  <!-- Script -->
   <script src="script.js" defer></script>
-
-  <!-- Quick inline for tour open/close (works before full JS loads) -->
-  <script>
-    (function(){
-      const btn = document.getElementById('tourBtn');
-      const modal = document.getElementById('tourModal');
-      if(!btn || !modal) return;
-      btn.addEventListener('click', ()=> { modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); });
-      const close = document.getElementById('tourClose');
-      const got = document.getElementById('tourGotIt');
-      [close, got].forEach(el => el && el.addEventListener('click', ()=> { modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }));
-    })();
-  </script>
 </body>
 </html>
-<input id="exprInput" placeholder="Nhập biểu thức, ví dụ: x^3 + 2x">
-<input id="varInput" placeholder="Biến, ví dụ: x" value="x">
-<button id="solveBtn">Giải</button>
-<div id="stepsContainer"></div>
-
-<!-- Thêm MathJax để công thức hiển thị đẹp -->
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
