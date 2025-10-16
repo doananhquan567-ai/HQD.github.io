@@ -772,4 +772,75 @@ async function callOpenAIApi(prompt, apiKey){
   // ensure MathJax is rendered for static content
   if(window.MathJax) MathJax.typesetPromise && MathJax.typesetPromise();
 })();
+// Nạp thư viện Math.js
+const mathScript = document.createElement('script');
+mathScript.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.5.0/math.min.js";
+document.head.appendChild(mathScript);
+
+mathScript.onload = () => {
+  const input = document.getElementById("expression");
+  const solveBtn = document.getElementById("solveBtn");
+  const solution = document.getElementById("solution");
+  const chatLog = document.getElementById("chat-log");
+  const sendBtn = document.getElementById("send-btn");
+  const userInput = document.getElementById("user-input");
+
+  // 🧮 Giải đạo hàm
+  solveBtn.addEventListener("click", () => {
+    const expr = input.value.trim();
+    if (!expr) {
+      solution.innerHTML = "❗Vui lòng nhập biểu thức.";
+      return;
+    }
+
+    try {
+      const simplified = math.simplify(expr);
+      const derivative = math.derivative(simplified, 'x');
+      const steps = [
+        `Bước 1️⃣: Biểu thức ban đầu: <b>${expr}</b>`,
+        `Bước 2️⃣: Rút gọn lại: <b>${simplified}</b>`,
+        `Bước 3️⃣: Lấy đạo hàm theo x.`,
+        `Bước 4️⃣: Kết quả cuối cùng: <b>${derivative}</b>`
+      ];
+      solution.innerHTML = steps.join('<br>');
+    } catch (err) {
+      solution.innerHTML = "⚠️ Lỗi cú pháp, vui lòng kiểm tra lại biểu thức.";
+    }
+  });
+
+  // 💬 Chat AI cơ bản
+  const responses = {
+    "ai tạo ra bạn": "Mình được tạo ra bởi Đoàn Anh Quân — người có niềm đam mê kết hợp toán học và công nghệ.",
+    "bạn tên gì": "Mình là AI HQD — trợ lý học toán thông minh.",
+    "bạn biết gì về đạo hàm": "Đạo hàm cho biết tốc độ thay đổi của hàm số, mình có thể tính và giải thích từng bước cho bạn!",
+    "xin chào": "Xin chào! Mình là HQD AI, sẵn sàng giúp bạn giải toán!",
+    "cảm ơn": "Rất vui được giúp bạn 💙"
+  };
+
+  sendBtn.addEventListener("click", () => {
+    const text = userInput.value.trim();
+    if (!text) return;
+    addMessage("user", text);
+
+    let reply = "Mình chưa hiểu rõ câu hỏi, bạn có thể nói lại không?";
+    for (let key in responses) {
+      if (text.toLowerCase().includes(key)) {
+        reply = responses[key];
+        break;
+      }
+    }
+
+    setTimeout(() => addMessage("ai", reply), 500);
+    userInput.value = "";
+  });
+
+  function addMessage(sender, message) {
+    const div = document.createElement("div");
+    div.classList.add("chat-message", sender);
+    div.innerHTML = `<b>${sender === "user" ? "👤 Bạn" : "🤖 HQD AI"}:</b> ${message}`;
+    chatLog.appendChild(div);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+};
+
 
