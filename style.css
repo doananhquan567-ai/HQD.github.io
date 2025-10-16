@@ -1,37 +1,240 @@
+/* ===========================
+   AI HQD — style.css
+   Theme: clean, học thuật, dễ đọc
+   Tương thích với index.html & script.js
+   =========================== */
+
+/* ---- biến màu dễ tùy chỉnh ---- */
 :root{
-  --bg:#f3f7fb;
-  --card:#ffffff;
-  --accent:#2563eb;
-  --muted:#6b7280;
-  --shadow: 0 8px 26px rgba(2,6,23,0.08);
+  --bg: #f3f7fb;            /* nền tổng thể */
+  --surface: #ffffff;       /* nền card */
+  --accent: #2563eb;        /* màu chính (xanh dương) */
+  --accent-600: #1e40af;
+  --muted: #6b7280;         /* chữ phụ */
+  --text: #0b1220;          /* chữ chính */
+  --success: #10b981;
+  --danger: #ef4444;
+  --glass: rgba(16,24,40,0.04);
+  --shadow: 0 10px 30px rgba(2,6,23,0.06);
+  --radius: 12px;
+  --max-width: 980px;
 }
 
-*{box-sizing:border-box;font-family:Inter,Segoe UI,Arial,sans-serif}
+/* ---- reset cơ bản ---- */
+*{box-sizing:border-box}
+html,body{height:100%}
 body{
-  margin:0;background:var(--bg);color:#0b1220;
-  display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;
+  margin:0;
+  font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg, var(--bg), #eef4ff 80%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.45;
+  padding:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
-.container{width:100%;max-width:980px}
-header{text-align:center;margin-bottom:14px}
-h1{color:var(--accent);margin:6px 0}
-.subtitle{color:var(--muted);margin:0;font-size:14px}
 
-.card{background:var(--card);border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
-.card label{display:block;margin-bottom:6px;color:var(--muted)}
-#expr{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9ef;font-size:16px}
-.row{display:flex;align-items:center;gap:8px;margin-top:10px}
-#variable{padding:6px 8px;border-radius:8px;border:1px solid #e6e9ef}
-.btn{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
-.btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(37,99,235,0.12)}
-.hint{color:var(--muted);font-size:13px;margin-top:8px}
+/* ---- khung chính ---- */
+.page{
+  width:100%;
+  max-width:var(--max-width);
+  margin:0 auto;
+}
 
-.results h2{margin:0 0 8px 0}
-.result-block{margin-bottom:10px}
-.label{font-weight:600;color:#111827;margin-bottom:6px}
-.output{background:#f8fafc;border-radius:8px;padding:10px;border:1px solid #eef2ff;min-height:40px;white-space:pre-wrap}
-.steps{background:#fff;padding:12px;border-radius:8px;border:1px solid #eef2ff;min-height:120px;color:#0b1220;line-height:1.6}
-.step{margin-bottom:8px;padding:8px;border-left:4px solid rgba(37,99,235,0.08);background:linear-gradient(180deg,#fff,#fbfdff)}
-.latex{margin-top:8px}
-.foot{text-align:center;color:var(--muted);font-size:13px;margin-top:8px}
-code{background:#f1f5f9;padding:2px 6px;border-radius:6px;font-family:monospace}
-pre{white-space:pre-wrap;font-family:monospace}
+/* ---- header/topbar ---- */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:18px;
+}
+
+/* logo + tiêu đề */
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.logo{
+  width:56px;
+  height:56px;
+  object-fit:contain;
+  border-radius:10px;
+  background:linear-gradient(180deg,#fff,#f3f7ff);
+  box-shadow:var(--shadow);
+  padding:8px;
+}
+.titles h1{
+  margin:0;
+  font-size:20px;
+  color:var(--accent-600);
+  letter-spacing:0.2px;
+}
+.titles .tagline{
+  margin:4px 0 0 0;
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* ---- menu ngang ---- */
+.menu{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.menu-btn{
+  background:transparent;
+  border:1px solid transparent;
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  color:var(--accent-600);
+  font-weight:600;
+  font-size:13px;
+  transition:all .18s ease;
+}
+.menu-btn:hover{ transform:translateY(-2px); box-shadow:0 6px 18px rgba(37,99,235,0.06) }
+.menu-btn.active{
+  background:linear-gradient(90deg,var(--accent),var(--accent-600));
+  color:white;
+  border:1px solid rgba(0,0,0,0.03);
+  box-shadow:0 8px 26px rgba(37,99,235,0.12);
+}
+
+/* ---- main (dàn 2 cột) ---- */
+.main{
+  display:grid;
+  grid-template-columns: 1fr 460px;
+  gap:18px;
+  align-items:start;
+  margin-bottom:18px;
+}
+
+/* ---- panel card chung ---- */
+.panel{
+  background:var(--surface);
+  border-radius:var(--radius);
+  padding:16px;
+  box-shadow:var(--shadow);
+  border:1px solid var(--glass);
+}
+
+/* ---- panel input (trái) ---- */
+.panel-input .welcome{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  margin-bottom:12px;
+}
+.welcome-text strong{ font-size:15px; color:var(--accent-600) }
+.welcome-text span{ display:block; color:var(--muted); font-size:13px; margin-top:4px }
+
+/* label + input cơ bản */
+label{ display:block; font-size:13px; color:var(--muted); margin-bottom:6px }
+#expr{
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid #e6e9ef;
+  font-size:15px;
+  outline:none;
+  box-shadow:inset 0 1px 0 rgba(0,0,0,0.02);
+}
+#expr:focus{ border-color:var(--accent-600); box-shadow:0 6px 20px rgba(37,99,235,0.06) }
+
+/* dòng tuỳ chọn */
+.options-row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+#variable{ padding:6px 8px; border-radius:8px; border:1px solid #e6e9ef; width:64px; text-align:center }
+#order{ padding:6px 8px; border-radius:8px; border:1px solid #e6e9ef }
+.primary{
+  background:linear-gradient(90deg,var(--accent),var(--accent-600));
+  color:white; padding:10px 14px; border-radius:10px; border:none; cursor:pointer;
+  font-weight:700;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.primary:hover{ transform:translateY(-3px); box-shadow:0 14px 40px rgba(37,99,235,0.12) }
+.ghost{ background:transparent; border:1px solid rgba(0,0,0,0.06); color:var(--accent-600); padding:8px 12px; border-radius:10px; cursor:pointer }
+
+/* advanced options */
+.advanced{ margin-top:12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; color:var(--muted); font-size:13px }
+.advanced label{ display:flex; gap:8px; align-items:center; cursor:pointer }
+
+/* quick examples */
+.quick-examples{ margin-top:14px; display:flex; gap:8px; flex-wrap:wrap; align-items:center }
+.quick-examples button{
+  background:#f8fbff; border:1px solid #e6efff; padding:6px 10px; border-radius:8px; cursor:pointer; color:var(--accent-600);
+  font-weight:600; font-size:13px;
+}
+.quick-examples button:hover{ background:linear-gradient(90deg,#fff,#f1f8ff); transform:translateY(-2px) }
+
+/* ---- panel results (phải) ---- */
+.panel-results h2{ margin:0 0 10px 0; color:var(--accent-600) }
+.result-block{ margin-bottom:12px }
+.label{ font-weight:700; color:#0f1724; margin-bottom:6px }
+.output{
+  background:#fbfeff; border-radius:10px; padding:10px; border:1px solid #eef6ff; min-height:46px; font-family:monospace; font-size:15px; overflow:auto;
+}
+
+/* LaTeX container */
+.latex{ margin-top:8px; font-size:16px; color:var(--muted) }
+
+/* bước giải */
+.steps{
+  background:linear-gradient(180deg,#fff,#fbfdff);
+  border-radius:10px; padding:12px; border:1px solid #eef4ff; min-height:180px;
+  color:var(--text);
+}
+.step{
+  padding:10px; margin-bottom:10px; border-left:4px solid rgba(37,99,235,0.08); border-radius:6px;
+  background:linear-gradient(180deg,#fff,#fcfeff);
+}
+.step strong{ color:var(--accent-600) }
+
+/* plot area */
+.plot{ width:100%; height:360px; border-radius:10px; background:linear-gradient(180deg,#fff,#fbfdff); border:1px solid #eef4ff; overflow:hidden }
+
+/* footer */
+.footer{ display:flex; justify-content:space-between; align-items:center; gap:10px; color:var(--muted); font-size:13px; margin-top:10px; padding:6px 4px }
+
+/* ---- responsive ---- */
+@media (max-width:980px){
+  .main{ grid-template-columns:1fr; }
+  .panel-results{ order:2 }
+  .panel-input{ order:1 }
+  .plot{ height:260px }
+}
+
+/* ---- small screens ---- */
+@media (max-width:520px){
+  body{ padding:12px }
+  .brand .titles h1{ font-size:18px }
+  .menu{ display:none } /* ẩn menu cho bản mobile minimal */
+  .options-row{ gap:6px }
+  .quick-examples{ gap:6px }
+  .plot{ height:220px }
+}
+
+/* ---- accessibility & utility ---- */
+button:focus, input:focus, select:focus { outline: 3px solid rgba(37,99,235,0.12); outline-offset:2px; }
+
+/* tooltip like hint small */
+.hint{ font-size:13px; color:var(--muted); margin-top:8px }
+
+/* make mathjax svg scale nicely in .latex */
+.latex svg{ max-width:100%; height:auto }
+
+/* ----- small helpers for error states ----- */
+.error { color: var(--danger); font-weight:700 }
+.success { color: var(--success); font-weight:700 }
+
+/* ---------- end of style.css ---------- */
