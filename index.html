@@ -1,23 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🤖 AI Hỗ Trợ Giải Toán</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI Giải Đạo Hàm — Giải từng bước</title>
+
+  <!-- math.js -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
+
+  <!-- MathJax để render LaTeX -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>🤖 AI Hỗ Trợ Giải Toán</h1>
+  <main class="container">
+    <header>
+      <h1>🤖 AI Giải Đạo Hàm — Từng bước chi tiết</h1>
+      <p class="subtitle">Hỗ trợ: đa thức, lũy thừa, product/quotient/chain rule, sin/cos/tan, exp, ln, log, a^x, x^a, ...</p>
+    </header>
 
-    <div class="chat-box" id="chat-box">
-        <div class="ai-message">Xin chào! Hãy nhập phép toán bạn muốn giải nhé 😄</div>
-    </div>
+    <section class="card">
+      <label for="expr">Biểu thức (ví dụ: <code>x^3 + 2*x</code>, <code>sin(x^2)</code>, <code>e^x</code>, <code>ln(x)</code>, <code>(x^2+1)/(x-1)</code>)</label>
+      <input id="expr" placeholder="Nhập biểu thức (ví dụ: x^3 + 2*x)" />
 
-    <div class="input-box">
-        <input type="text" id="user-input" placeholder="Nhập ví dụ: (3 + 2) = ? hoặc 5*6..." />
-        <button id="send-btn">Gửi</button>
-    </div>
+      <div class="row">
+        <label for="variable">Biến: </label>
+        <input id="variable" value="x" size="3" />
+        <button id="deriveBtn" class="btn">Tính đạo hàm</button>
+        <button id="clearBtn" class="btn ghost">Xóa</button>
+      </div>
+      <div class="hint">Gợi ý: dùng ^ cho lũy thừa; dùng * cho nhân; exp(x) hoặc e^x; log(x) = ln(x), log(x,10) cho log cơ số 10.</div>
+    </section>
 
-    <script src="script.js"></script>
+    <section class="card results">
+      <h2>Kết quả</h2>
+
+      <div class="result-block">
+        <div class="label">Đạo hàm (rút gọn):</div>
+        <pre id="derivative" class="output">—</pre>
+        <div id="derivative-latex" class="latex"></div>
+      </div>
+
+      <div class="result-block">
+        <div class="label">Lời giải từng bước (chi tiết):</div>
+        <div id="steps" class="steps">Nhấn "Tính đạo hàm" để xem các bước.</div>
+      </div>
+    </section>
+
+    <footer class="foot">Nếu biểu thức rất phức tạp, app sẽ cố gắng sử dụng math.js để lấy đạo hàm và minh họa các bước chính.</footer>
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>
