@@ -163,3 +163,61 @@ function drawPlot(expr, derivative, variable) {
     plotDiv.innerHTML = `<p style="color:red">Không thể vẽ đồ thị: ${e.message}</p>`;
   }
 }
+// ======================
+// PHẦN CHAT CỦA AI HQD
+// ======================
+
+function sendMessage() {
+  const input = document.getElementById('userInput');
+  const chatbox = document.getElementById('chatbox');
+  const msg = input.value.trim();
+  if (msg === "") return;
+
+  // Hiển thị tin nhắn người dùng
+  const userDiv = document.createElement('div');
+  userDiv.className = 'user-msg';
+  userDiv.textContent = msg;
+  chatbox.appendChild(userDiv);
+  input.value = '';
+
+  // Tự động cuộn xuống
+  chatbox.scrollTop = chatbox.scrollHeight;
+
+  // Trả lời sau 0.5 giây
+  setTimeout(() => {
+    const botDiv = document.createElement('div');
+    botDiv.className = 'bot-msg';
+    botDiv.innerHTML = getHQDResponse(msg);
+    chatbox.appendChild(botDiv);
+    chatbox.scrollTop = chatbox.scrollHeight;
+  }, 500);
+}
+
+// --------------------------
+// Câu trả lời giả lập HQD
+// --------------------------
+function getHQDResponse(input) {
+  input = input.toLowerCase();
+
+  if (input.includes("xin chào") || input.includes("hello"))
+    return "Chào bạn 👋! Tôi là <strong>AI HQD</strong>, trợ lý toán học của bạn. Bạn muốn tôi giúp gì hôm nay?";
+
+  if (input.includes("ai tạo ra") || input.includes("ai là người tạo ra"))
+    return "Tôi được lập trình bởi <strong>bạn</strong> — người sáng tạo của dự án <strong>HQD AI Math</strong> 🧠✨";
+
+  if (input.includes("tên gì") || input.includes("bạn là ai"))
+    return "Tôi là <strong>AI HQD</strong>, một trợ lý học toán thông minh do bạn thiết kế để giúp mọi người học dễ hơn 😄";
+
+  if (input.includes("đạo hàm") || input.includes("giải"))
+    return "Nếu bạn muốn tôi giải đạo hàm, hãy nhập hàm vào ô bên trên và nhấn nút <strong>Giải đạo hàm</strong> nhé 📘";
+
+  if (input.includes("cảm ơn"))
+    return "Không có gì đâu 💙 Rất vui được giúp bạn!";
+
+  if (input.includes("tạm biệt"))
+    return "Tạm biệt bạn 👋! Hẹn gặp lại trong buổi học toán tiếp theo nhé!";
+
+  // Trả lời mặc định
+  return "Hmm... tôi chưa hiểu câu hỏi đó 😅<br>Hãy thử hỏi lại bằng cách khác, ví dụ: <em>‘Đạo hàm của sin(x^2) là gì?’</em>";
+}
+
