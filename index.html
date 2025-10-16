@@ -123,3 +123,17 @@
   <script src="script.js"></script>
 </body>
 </html>
+<!-- ============ PHẦN CHAT HQD ============ -->
+<div class="panel chat-panel">
+  <h2>💬 Trò chuyện cùng AI HQD</h2>
+  <div id="chatbox">
+    <div class="bot-msg">Xin chào! Tôi là <strong>AI HQD</strong> — trợ lý toán học của bạn 😄<br>
+    Hãy hỏi tôi bất kỳ điều gì nhé!</div>
+  </div>
+  
+  <div class="chat-input-row">
+    <input id="userInput" type="text" placeholder="Nhập câu hỏi của bạn..." onkeydown="if(event.key==='Enter'){sendMessage();}">
+    <button onclick="sendMessage()">Gửi</button>
+  </div>
+</div>
+
