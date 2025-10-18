@@ -187,3 +187,60 @@ document.addEventListener("DOMContentLoaded", () => {
   // Make initial greeting UI minimal (mainApp hidden). Optional: show on first load after 1s.
   // (User can click "Hiện công cụ" to use app)
 });
+<button id="analyzeBtn" class="btn primary">Khảo sát & Vẽ đồ thị SGK</button>
+async function analyzeFunction(expr, variable = "x") {
+  // Bước 1: Hiển thị lời chào
+  displayMessage(`
+    <div class="sgk-header">
+      <h3>🧭 Khảo sát hàm số theo SGK</h3>
+      <p><strong>AI HQD</strong> – Giám đốc sản xuất: <strong>Anh Quân Đẹp Trai</strong></p>
+    </div>
+  `);
+
+  try {
+    const scope = { [variable]: 0 };
+    const node = math.parse(expr);
+    const f = node.compile();
+
+    // Bước 2: Miền xác định
+    const domain = determineDomain(expr, variable);
+
+    // Bước 3: Đạo hàm, xét cực trị
+    const derivative = math.derivative(expr, variable).toString();
+    const secondDeriv = math.derivative(derivative, variable).toString();
+
+    // Bước 4: Lời giải chi tiết SGK-style
+    const steps = `
+      <div class="sgk-step"><b>Bước 1.</b> Tập xác định: ${domain}</div>
+      <div class="sgk-step"><b>Bước 2.</b> Tính đạo hàm:</div>
+      <div class="sgk-formula">\\( f'(${variable}) = ${math.parse(derivative).toTex()} \\)</div>
+      <div class="sgk-step"><b>Bước 3.</b> Giải phương trình đạo hàm = 0 để tìm cực trị.</div>
+      <div class="sgk-step"><b>Bước 4.</b> Tính đạo hàm cấp hai: \\( f''(${variable}) = ${math.parse(secondDeriv).toTex()} \\)</div>
+      <div class="sgk-step"><b>Bước 5.</b> Lập bảng biến thiên và vẽ đồ thị.</div>
+    `;
+
+    document.getElementById("stepsContainer").innerHTML = steps;
+    MathJax.typesetPromise();
+
+    // Bước 6: Vẽ đồ thị (Plotly)
+    plotFunctionGraph(expr, derivative, variable);
+  } catch (err) {
+    displayMessage(`<div class="error">Lỗi: ${err.message}</div>`);
+  }
+}
+.sgk-header { 
+  background: linear-gradient(90deg,#eef4ff,#ffffff);
+  padding: 10px 12px;
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+.sgk-step { margin-top: 8px; line-height: 1.6; }
+.sgk-formula { 
+  margin: 6px 0;
+  background: #f8fafc;
+  padding: 8px;
+  border-radius: 6px;
+  font-family: "Cambria Math", serif;
+}
+
