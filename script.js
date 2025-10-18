@@ -1,246 +1,185 @@
-/* script.js — ổn định, không lỗi, SGK-style, minimal UI toggle */
+/* =====================================================
+   AI HQD — script.js (phiên bản nâng cấp SGK)
+   Mục tiêu:
+   - Giải đạo hàm & khảo sát hàm số theo SGK Toán 12
+   - Hiển thị từng bước chi tiết, dễ hiểu, sang trọng
+   - Giữ nguyên giao diện gốc (index.html + style.css)
+   ===================================================== */
 
+/* ------------------------- Khởi tạo ------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
-  // Elements
-  const toggleBtn = document.getElementById("toggle-ui");
-  const mainApp = document.getElementById("mainApp");
-
   const exprInput = document.getElementById("exprInput");
-  const variableInput = document.getElementById("variableInput");
-  const orderSelect = document.getElementById("orderSelect");
-  const showSteps = document.getElementById("showSteps");
+  const varInput = document.getElementById("variableInput");
   const deriveBtn = document.getElementById("deriveBtn");
   const clearBtn = document.getElementById("clearBtn");
+  const stepsContainer = document.getElementById("stepsContainer");
   const resultText = document.getElementById("resultText");
   const resultLatex = document.getElementById("resultLatex");
-  const stepsContainer = document.getElementById("stepsContainer");
-
   const plotRoot = document.getElementById("plotRoot");
-  const xMinInput = document.getElementById("xMin");
-  const xMaxInput = document.getElementById("xMax");
-  const plotUpdate = document.getElementById("plotUpdate");
 
-  // Toggle minimal <-> full UI
-  toggleBtn.addEventListener("click", () => {
-    mainApp.classList.toggle("show");
-    // change button text slightly for clarity
-    toggleBtn.textContent = mainApp.classList.contains("show") ? "Ẩn công cụ" : "Hiện công cụ";
+  // Bổ sung nút "Khảo sát & Vẽ đồ thị SGK"
+  const analyzeBtn = document.createElement("button");
+  analyzeBtn.id = "analyzeBtn";
+  analyzeBtn.className = "btn primary";
+  analyzeBtn.textContent = "Khảo sát & Vẽ đồ thị SGK";
+  deriveBtn.parentElement.appendChild(analyzeBtn);
+
+  /* ----------- Nút Giải Đạo Hàm ----------- */
+  deriveBtn.addEventListener("click", () => {
+    const expr = exprInput.value.trim();
+    const variable = varInput.value || "x";
+    if (!expr) return alert("Hãy nhập biểu thức cần đạo hàm.");
+    solveDerivative(expr, variable);
   });
 
-  // safe toLatex using mathjs parse
-  function toLatex(expr) {
-    try {
-      // math.parse may throw; guard it
-      const node = math.parse(String(expr));
-      if (typeof node.toTex === "function") return node.toTex({ parenthesis: "auto" });
-      return expr;
-    } catch {
-      return expr;
-    }
-  }
+  /* ----------- Nút Khảo Sát SGK ----------- */
+  analyzeBtn.addEventListener("click", () => {
+    const expr = exprInput.value.trim();
+    const variable = varInput.value || "x";
+    if (!expr) return alert("Hãy nhập biểu thức cần khảo sát.");
+    analyzeFunction(expr, variable);
+  });
 
-  // Render Math in a container (returns promise)
-  function renderMathIn(element) {
-    if (!window.MathJax || !MathJax.typesetPromise) return Promise.resolve();
-    return MathJax.typesetPromise([element]).catch(()=>{});
-  }
-
-  // Main derive handler
-  function handleDerive() {
-    const expr = (exprInput.value || "").trim();
-    const variable = (variableInput.value || "x").trim() || "x";
-    const order = parseInt(orderSelect.value || "1", 10);
-
-    if (!expr) {
-      stepsContainer.innerHTML = "<div style='color:#b91c1c'>Vui lòng nhập biểu thức!</div>";
-      return;
-    }
-
-    try {
-      // compute derivative iteratively
-      let cur = expr;
-      for (let i = 0; i < order; i++) {
-        cur = math.derivative(cur, variable).toString();
-      }
-      const simplified = math.simplify(cur).toString();
-
-      // show plain text
-      resultText.textContent = simplified;
-      // show latex
-      const latex = toLatex(simplified);
-      resultLatex.innerHTML = `\\(${latex}\\)`;
-
-      // steps
-      if (showSteps && showSteps.checked) {
-        stepsContainer.innerHTML = buildSGKStepsHTML(expr, variable, order, simplified);
-        // render math
-        renderMathIn(stepsContainer);
-      } else {
-        stepsContainer.textContent = "Lời giải chi tiết đã bị ẩn.";
-      }
-
-      // render result latex
-      renderMathIn(resultLatex);
-
-      // plot
-      plotFunction(expr, simplified, variable);
-    } catch (e) {
-      stepsContainer.innerHTML = `<div style="color:#b91c1c">Lỗi khi tính: ${escapeHtml(String(e.message || e))}</div>`;
-      // clear plot
-      try { Plotly.purge(plotRoot); } catch {}
-    }
-  }
-
-  // Build SGK-style HTML for steps (lời + công thức)
-  function buildSGKStepsHTML(expr, variable, order, simplified) {
-    const texExpr = toLatex(expr);
-    const texResult = toLatex(simplified);
-
-    // We'll make explanations concise and SGK-like, but generic enough
-    return `
-      <div class="sgk-steps">
-        <p><strong>Bước 1:</strong> Xét hàm số \\( f(${variable}) = ${texExpr} \\).</p>
-
-        <p><strong>Bước 2:</strong> Cần tìm đạo hàm bậc ${order} theo biến ${variable}.</p>
-
-        <p><strong>Bước 3:</strong> Áp dụng quy tắc đạo hàm phù hợp từng phần:
-          <ul>
-            <li>Đạo hàm của tổng: \\( (u+v)' = u' + v' \\).</li>
-            <li>Đạo hàm lũy thừa: \\( (x^n)' = n x^{n-1} \\).</li>
-            <li>Đối với hàm hợp, áp dụng quy tắc chuỗi: \\( (g(h(x)))' = g'(h(x))·h'(x) \\).</li>
-          </ul>
-        </p>
-
-        <p><strong>Bước 4:</strong> Tính đạo hàm từng hạng tử và rút gọn. Kết quả thu được:
-          <br>\\( f^{(${order})}(${variable}) = ${texResult} \\)
-        </p>
-
-        <p><strong>Kết luận:</strong> Do đó \\( f^{(${order})}(${variable}) = ${texResult} \\).</p>
-      </div>
-    `;
-  }
-
-  // Simple escape for error messages
-  function escapeHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  // Plotting function using Plotly
-  function plotFunction(expr, derived, variable) {
-    try {
-      const xMin = parseFloat(xMinInput.value || "-6");
-      const xMax = parseFloat(xMaxInput.value || "6");
-      const step = Math.max((xMax - xMin) / 240, 0.01);
-      const xs = [];
-      for (let t = xMin; t <= xMax + 1e-9; t += step) xs.push(Number(t.toFixed(6)));
-
-      const fCompiled = math.parse(expr).compile();
-      const gCompiled = math.parse(derived).compile();
-
-      const ys = xs.map(x => {
-        try { const v = fCompiled.evaluate({ [variable]: x }); return (typeof v === 'number' && isFinite(v)) ? v : null; }
-        catch { return null; }
-      });
-      const yps = xs.map(x => {
-        try { const v = gCompiled.evaluate({ [variable]: x }); return (typeof v === 'number' && isFinite(v)) ? v : null; }
-        catch { return null; }
-      });
-
-      const traces = [
-        { x: xs, y: ys, mode: 'lines', name: 'f(x)', line:{width:2} },
-        { x: xs, y: yps, mode: 'lines', name: "f'(x)", line:{dash:'dot', width:2} }
-      ];
-
-      const layout = {
-        margin:{t:20,b:40,l:50,r:20},
-        xaxis:{title:variable},
-        yaxis:{title:'Giá trị'},
-        paper_bgcolor:'#fff',
-        plot_bgcolor:'#fff',
-        height:300
-      };
-
-      Plotly.react(plotRoot, traces, layout, {responsive:true});
-    } catch (e) {
-      console.warn("Plot error:", e);
-    }
-  }
-
-  // Wire buttons & examples
-  deriveBtn.addEventListener("click", handleDerive);
+  /* ----------- Nút Xóa ----------- */
   clearBtn.addEventListener("click", () => {
     exprInput.value = "";
     resultText.textContent = "—";
     resultLatex.innerHTML = "";
-    stepsContainer.textContent = 'Nhấn "Tính đạo hàm" để xem lời giải.';
-    try { Plotly.purge(plotRoot); } catch {}
+    stepsContainer.innerHTML = "Nhấn 'Tính đạo hàm' hoặc 'Khảo sát & Vẽ đồ thị SGK'.";
+    Plotly.purge(plotRoot);
   });
-  plotUpdate.addEventListener("click", handleDerive);
-
-  document.querySelectorAll(".example-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      exprInput.value = btn.dataset.expr;
-      handleDerive();
-    });
-  });
-
-  // Make initial greeting UI minimal (mainApp hidden). Optional: show on first load after 1s.
-  // (User can click "Hiện công cụ" to use app)
 });
-<button id="analyzeBtn" class="btn primary">Khảo sát & Vẽ đồ thị SGK</button>
-async function analyzeFunction(expr, variable = "x") {
-  // Bước 1: Hiển thị lời chào
-  displayMessage(`
-    <div class="sgk-header">
-      <h3>🧭 Khảo sát hàm số theo SGK</h3>
-      <p><strong>AI HQD</strong> – Giám đốc sản xuất: <strong>Anh Quân Đẹp Trai</strong></p>
-    </div>
-  `);
+
+/* =====================================================
+   1️⃣  HÀM GIẢI ĐẠO HÀM (chi tiết, SGK-style)
+   ===================================================== */
+function solveDerivative(expr, variable = "x") {
+  const resultText = document.getElementById("resultText");
+  const resultLatex = document.getElementById("resultLatex");
+  const stepsContainer = document.getElementById("stepsContainer");
 
   try {
-    const scope = { [variable]: 0 };
-    const node = math.parse(expr);
-    const f = node.compile();
+    const derivative = math.derivative(expr, variable);
+    const simplified = math.simplify(derivative.toString());
+    const latex = simplified.toTex();
 
-    // Bước 2: Miền xác định
-    const domain = determineDomain(expr, variable);
-
-    // Bước 3: Đạo hàm, xét cực trị
-    const derivative = math.derivative(expr, variable).toString();
-    const secondDeriv = math.derivative(derivative, variable).toString();
-
-    // Bước 4: Lời giải chi tiết SGK-style
-    const steps = `
-      <div class="sgk-step"><b>Bước 1.</b> Tập xác định: ${domain}</div>
-      <div class="sgk-step"><b>Bước 2.</b> Tính đạo hàm:</div>
-      <div class="sgk-formula">\\( f'(${variable}) = ${math.parse(derivative).toTex()} \\)</div>
-      <div class="sgk-step"><b>Bước 3.</b> Giải phương trình đạo hàm = 0 để tìm cực trị.</div>
-      <div class="sgk-step"><b>Bước 4.</b> Tính đạo hàm cấp hai: \\( f''(${variable}) = ${math.parse(secondDeriv).toTex()} \\)</div>
-      <div class="sgk-step"><b>Bước 5.</b> Lập bảng biến thiên và vẽ đồ thị.</div>
+    // Lời giải SGK-style
+    const stepsHTML = `
+      <div class="sgk-header">
+        <h3>📘 Giải đạo hàm từng bước</h3>
+        <p><strong>AI HQD</strong> – Giám đốc sản xuất: <strong>Anh Quân Đẹp Trai</strong></p>
+      </div>
+      <div class="sgk-step"><b>Bước 1.</b> Ta có hàm số: \\( f(${variable}) = ${math.parse(expr).toTex()} \\)</div>
+      <div class="sgk-step"><b>Bước 2.</b> Áp dụng quy tắc đạo hàm tương ứng cho từng phần của biểu thức.</div>
+      <div class="sgk-step"><b>Bước 3.</b> Ta được đạo hàm: \\( f'(${variable}) = ${derivative.toTex()} \\)</div>
+      <div class="sgk-step"><b>Bước 4.</b> Rút gọn kết quả: \\( f'(${variable}) = ${latex} \\)</div>
+      <div class="sgk-step"><b>Kết luận:</b> Đạo hàm của hàm số là \\( f'(${variable}) = ${latex} \\)</div>
     `;
 
-    document.getElementById("stepsContainer").innerHTML = steps;
+    document.getElementById("stepsContainer").innerHTML = stepsHTML;
+    resultText.textContent = simplified.toString();
+    resultLatex.innerHTML = `\\( f'(${variable}) = ${latex} \\)`;
     MathJax.typesetPromise();
 
-    // Bước 6: Vẽ đồ thị (Plotly)
-    plotFunctionGraph(expr, derivative, variable);
+    plotFunctionGraph(expr, derivative.toString(), variable);
   } catch (err) {
-    displayMessage(`<div class="error">Lỗi: ${err.message}</div>`);
+    stepsContainer.innerHTML = `<div class="error">❌ Lỗi: ${err.message}</div>`;
   }
 }
-.sgk-header { 
-  background: linear-gradient(90deg,#eef4ff,#ffffff);
-  padding: 10px 12px;
-  border-left: 4px solid var(--accent);
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-.sgk-step { margin-top: 8px; line-height: 1.6; }
-.sgk-formula { 
-  margin: 6px 0;
-  background: #f8fafc;
-  padding: 8px;
-  border-radius: 6px;
-  font-family: "Cambria Math", serif;
+
+/* =====================================================
+   2️⃣  HÀM KHẢO SÁT & VẼ ĐỒ THỊ (SGK-style)
+   ===================================================== */
+function analyzeFunction(expr, variable = "x") {
+  const stepsContainer = document.getElementById("stepsContainer");
+  const resultText = document.getElementById("resultText");
+  const resultLatex = document.getElementById("resultLatex");
+
+  try {
+    const derivative = math.derivative(expr, variable).toString();
+    const second = math.derivative(derivative, variable).toString();
+
+    const domain = determineDomain(expr, variable);
+
+    const stepsHTML = `
+      <div class="sgk-header">
+        <h3>🧭 Khảo sát hàm số theo SGK Toán 12</h3>
+        <p><strong>AI HQD</strong> – Giám đốc sản xuất: <strong>Anh Quân Đẹp Trai</strong></p>
+      </div>
+
+      <div class="sgk-step"><b>Bước 1.</b> Tập xác định: ${domain}</div>
+
+      <div class="sgk-step"><b>Bước 2.</b> Tính đạo hàm bậc nhất:</div>
+      <div class="sgk-formula">\\( f'(${variable}) = ${math.parse(derivative).toTex()} \\)</div>
+
+      <div class="sgk-step"><b>Bước 3.</b> Tính đạo hàm bậc hai:</div>
+      <div class="sgk-formula">\\( f''(${variable}) = ${math.parse(second).toTex()} \\)</div>
+
+      <div class="sgk-step"><b>Bước 4.</b> Xét các điểm tới hạn, cực trị và tính đơn điệu của hàm số.</div>
+
+      <div class="sgk-step"><b>Bước 5.</b> Dựa vào dấu của \\( f'(${variable}) \\) và \\( f''(${variable}) \\), lập bảng biến thiên và vẽ đồ thị minh họa.</div>
+    `;
+
+    stepsContainer.innerHTML = stepsHTML;
+    resultText.textContent = "Khảo sát hoàn tất – xem đồ thị bên dưới.";
+    resultLatex.innerHTML = `\\( f'(${variable}) = ${math.parse(derivative).toTex()} \\)`;
+    MathJax.typesetPromise();
+
+    plotFunctionGraph(expr, derivative, variable);
+  } catch (err) {
+    stepsContainer.innerHTML = `<div class="error">❌ Lỗi: ${err.message}</div>`;
+  }
 }
 
+/* =====================================================
+   3️⃣  TÌM MIỀN XÁC ĐỊNH (đơn giản)
+   ===================================================== */
+function determineDomain(expr, variable) {
+  if (expr.includes("/")) return "Tập xác định là tất cả các giá trị của " + variable + " sao cho mẫu khác 0.";
+  if (expr.includes("log")) return "Tập xác định là tập các giá trị của " + variable + " để biểu thức trong log > 0.";
+  if (expr.includes("sqrt")) return "Tập xác định là tập các giá trị của " + variable + " để biểu thức trong căn ≥ 0.";
+  return "Tập xác định là \\( \\mathbb{R} \\).";
+}
+
+/* =====================================================
+   4️⃣  VẼ ĐỒ THỊ (f và f')
+   ===================================================== */
+function plotFunctionGraph(expr, derivativeExpr, variable) {
+  const xMin = parseFloat(document.getElementById("xMin").value) || -6;
+  const xMax = parseFloat(document.getElementById("xMax").value) || 6;
+  const plotRoot = document.getElementById("plotRoot");
+
+  const scope = {};
+  const f = math.parse(expr).compile();
+  const df = math.parse(derivativeExpr).compile();
+
+  const xValues = math.range(xMin, xMax, 0.1).toArray();
+  const yValues = xValues.map((x) => {
+    scope[variable] = x;
+    try { return f.evaluate(scope); } catch { return NaN; }
+  });
+  const dyValues = xValues.map((x) => {
+    scope[variable] = x;
+    try { return df.evaluate(scope); } catch { return NaN; }
+  });
+
+  const trace1 = { x: xValues, y: yValues, mode: "lines", name: "f(x)", line: { width: 3 } };
+  const trace2 = { x: xValues, y: dyValues, mode: "lines", name: "f'(x)", line: { dash: "dot" } };
+
+  Plotly.newPlot(plotRoot, [trace1, trace2], {
+    margin: { t: 20 },
+    paper_bgcolor: "#ffffff",
+    plot_bgcolor: "#ffffff",
+    xaxis: { title: variable },
+    yaxis: { title: "Giá trị" },
+    legend: { orientation: "h" }
+  });
+}
+
+/* =====================================================
+   5️⃣  TIỆN ÍCH
+   ===================================================== */
+function displayMessage(html) {
+  const container = document.getElementById("stepsContainer");
+  container.innerHTML = html;
+}
