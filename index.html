@@ -3,227 +3,119 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AI HQD — Trợ lý Giải Đạo Hàm (SGK)</title>
-  <meta name="description" content="AI HQD — giải đạo hàm từng bước theo chuẩn SGK, hiển thị LaTeX & đồ thị tương tác" />
+  <title>AI HQD — Giải & Khảo Sát Hàm Số SGK</title>
+  <meta name="description" content="AI HQD — Trợ lý giải đạo hàm, khảo sát và vẽ đồ thị như SGK Toán 12." />
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
 
   <!-- Math.js -->
   <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
 
   <!-- Plotly -->
-  <script src="https://cdn.plot.ly/plotly-2.20.0.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 
-  <!-- MathJax (single include) -->
+  <!-- MathJax -->
   <script>
     window.MathJax = {
-      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], tags: 'ams' },
-      options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] }
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+      svg: { fontCache: 'global' }
     };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <meta name="theme-color" content="#0f172a" />
 </head>
 
 <body>
-  <!-- Clean header with two prominent texts requested -->
+  <!-- ============ HEADER ============ -->
   <header class="site-header">
     <div class="header-inner container">
-      <div class="greeting">
-        <div class="greet-main">Al HQD CIN CHÀO</div>
-        <div class="greet-sub">giám đốc sản xuất là <span class="director">ANH QUÂN ĐẸP TRAI</span></div>
-      </div>
-
-      <nav class="tiny-nav" aria-label="tools">
-        <button id="toggle-ui" class="nav-small">Hiện / Ẩn công cụ</button>
-      </nav>
+      <h1 class="brand-title">🤖 AI HQD kính chào</h1>
+      <p class="brand-sub">Giám đốc sản xuất: <strong>ANH QUÂN ĐẸP TRAI</strong></p>
     </div>
   </header>
 
-  <!-- Main app: hidden by default to keep UI minimal; toggle button will show/hide -->
-  <main class="container main-app" id="mainApp">
-    <section class="card input-card">
-      <label class="sr-only" for="exprInput">Biểu thức</label>
-      <input id="exprInput" class="expr-input" type="text" placeholder="Ví dụ: sin(x^2) + 3*x^3" aria-label="Biểu thức cần đạo hàm">
-      <div class="row">
-        <div class="small">
+  <!-- ============ MAIN CONTENT ============ -->
+  <main class="main-grid container">
+    <!-- LEFT PANEL -->
+    <section class="card panel-left">
+      <h2 class="panel-title">Nhập hàm số</h2>
+
+      <label for="exprInput" class="sr-only">Biểu thức hàm số</label>
+      <input id="exprInput" class="expr-input" type="text" placeholder="Ví dụ: (x^3 - 3x + 2)/(x-1)" aria-label="Biểu thức hàm số">
+
+      <div class="controls-row">
+        <div class="control-inline">
           <label for="variableInput">Biến</label>
-          <input id="variableInput" class="small-input" type="text" value="x" maxlength="3" />
+          <input id="variableInput" class="small-input" type="text" value="x" maxlength="3">
         </div>
-        <div class="small">
-          <label for="orderSelect">Bậc</label>
+
+        <div class="control-inline">
+          <label for="orderSelect">Bậc đạo hàm</label>
           <select id="orderSelect">
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
           </select>
         </div>
-        <div class="small">
-          <label class="checkbox-inline"><input id="showSteps" type="checkbox" checked /> Hiển thị bước</label>
-        </div>
-        <div class="actions">
-          <button id="deriveBtn" class="btn primary">Tính đạo hàm</button>
+
+        <div class="control-actions">
+          <button id="deriveBtn" class="btn primary">Tính đạo hàm (SGK)</button>
+          <button id="analyzeBtn" class="btn gold">Khảo sát & Vẽ đồ thị SGK</button>
           <button id="clearBtn" class="btn ghost">Xóa</button>
         </div>
       </div>
 
-      <div class="examples">
-        <button class="example-btn" data-expr="x^3 + 2*x">x^3 + 2x</button>
-        <button class="example-btn" data-expr="sin(x^2)">sin(x^2)</button>
-        <button class="example-btn" data-expr="e^(x)">e^x</button>
-        <button class="example-btn" data-expr="(x^2+1)/(x-1)">(x^2+1)/(x-1)</button>
+      <div class="note">
+        💡 Nhập hàm số cần khảo sát, ví dụ:  
+        <code>(x^3 - 3x + 2)/(x-1)</code> hoặc <code>sin(x^2)</code>
       </div>
     </section>
 
-    <aside class="card right-card">
-      <div class="result-block">
-        <div class="label">Đạo hàm (rút gọn)</div>
+    <!-- RIGHT PANEL -->
+    <aside class="card panel-right">
+      <h2 class="panel-title">Kết quả chi tiết (Chuẩn SGK)</h2>
+
+      <div class="result-summary">
+        <div class="label">Kết quả rút gọn</div>
         <pre id="resultText" class="result-text">—</pre>
-        <div id="resultLatex" class="result-latex" aria-hidden="false"></div>
+        <div id="resultLatex" class="result-latex"></div>
       </div>
 
-      <div class="steps-block">
-        <div class="label">Lời giải từng bước (SGK)</div>
-        <div id="stepsContainer" class="steps-container">Nhấn "Tính đạo hàm" để xem lời giải.</div>
+      <div class="steps-area">
+        <div class="label">Lời giải từng bước (chuẩn SGK)</div>
+        <div id="stepsContainer" class="steps-container">Nhấn “Tính đạo hàm” hoặc “Khảo sát SGK” để xem lời giải chi tiết.</div>
       </div>
 
-      <div class="plot-block">
-        <div class="label">Đồ thị (f và f')</div>
-        <div id="plotRoot" class="plot-root" role="img" aria-label="Đồ thị hàm số"></div>
+      <div class="variation-area">
+        <div class="label">Bảng xét dấu / Biến thiên</div>
+        <div id="tableContainer" class="table-container">—</div>
+      </div>
+
+      <div class="plot-area">
+        <div class="label">Đồ thị hàm số</div>
+        <div id="plotRoot" class="plot-root"></div>
         <div class="plot-controls">
-          <input id="xMin" class="plot-range" type="number" value="-6" step="1" />
-          <input id="xMax" class="plot-range" type="number" value="6" step="1" />
+          <label>xMin</label><input id="xMin" type="number" class="plot-range" value="-6">
+          <label>xMax</label><input id="xMax" type="number" class="plot-range" value="6">
           <button id="plotUpdate" class="btn small ghost">Cập nhật</button>
         </div>
       </div>
     </aside>
   </main>
 
+  <!-- ============ FOOTER ============ -->
   <footer class="site-footer">
-    <div class="container">© AI HQD — Demo</div>
-  </footer>
-
-  <!-- Script -->
-  <script src="script.js" defer></script>
-</body>
-</html>
-<!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AI HQD — Khảo sát & Vẽ đồ thị SGK</title>
-  <meta name="description" content="AI HQD — khảo sát hàm số & giải đạo hàm theo SGK Toán 12" />
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="style.css">
-
-  <!-- math.js -->
-  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
-  <!-- plotly -->
-  <script src="https://cdn.plot.ly/plotly-2.20.0.min.js"></script>
-
-  <!-- MathJax -->
-  <script>
-    window.MathJax = {
-      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], tags: 'ams' },
-      options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] }
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" defer></script>
-</head>
-
-<body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <div class="greeting">
-        <div class="greet-main">Al HQD CIN CHÀO</div>
-        <div class="greet-sub">giám đốc sản xuất là <span class="director">ANH QUÂN ĐẸP TRAI</span></div>
-      </div>
-      <div class="tiny-nav">
-        <button id="toggle-ui" class="nav-small">Hiện / Ẩn công cụ</button>
-      </div>
+    <div class="container">
+      © <strong>AI HQD</strong> — Trợ lý Giải & Khảo sát Hàm số theo SGK Toán 12 · Thiết kế bởi <strong>Anh Quân Đẹp Trai</strong>
     </div>
-  </header>
-
-  <main class="container main-app" id="mainApp">
-    <section class="card input-card">
-      <h2 class="panel-title">Nhập biểu thức</h2>
-
-      <input id="exprInput" class="expr-input" type="text" placeholder="Ví dụ: (x^2-4)/(x-1) hoặc sin(x^2)+3*x" aria-label="Biểu thức">
-
-      <div class="row">
-        <div class="small">
-          <label for="variableInput">Biến</label>
-          <input id="variableInput" class="small-input" type="text" value="x" maxlength="3" />
-        </div>
-
-        <div class="small">
-          <label for="orderSelect">Bậc đạo hàm</label>
-          <select id="orderSelect"><option>1</option><option>2</option><option>3</option></select>
-        </div>
-
-        <div class="small">
-          <label class="checkbox-inline"><input id="showSteps" type="checkbox" checked /> Hiển thị bước</label>
-        </div>
-
-        <div class="actions">
-          <button id="deriveBtn" class="btn primary">Tính đạo hàm</button>
-          <button id="analyzeBtn" class="btn primary">Phân tích SGK (BBT)</button>
-          <button id="clearBtn" class="btn ghost">Xóa</button>
-        </div>
-      </div>
-
-      <div class="examples">
-        <span class="ex-title">Ví dụ:</span>
-        <button class="example-btn" data-expr="x^3 + 2*x">x^3 + 2x</button>
-        <button class="example-btn" data-expr="sin(x^2)">sin(x^2)</button>
-        <button class="example-btn" data-expr="e^(x)">e^x</button>
-        <button class="example-btn" data-expr="(x^2+1)/(x-1)">(x^2+1)/(x-1)</button>
-      </div>
-    </section>
-
-    <aside class="card right-card">
-      <h2 class="panel-title">Kết quả & Lời giải</h2>
-
-      <div class="result-block">
-        <div class="label">Đạo hàm (rút gọn)</div>
-        <pre id="resultText" class="result-text">—</pre>
-        <div id="resultLatex" class="result-latex" aria-hidden="false"></div>
-      </div>
-
-      <div class="steps-block">
-        <div class="label">Lời giải / Khảo sát (SGK)</div>
-        <div id="stepsContainer" class="steps-container">
-          Nhấn "Tính đạo hàm" hoặc "Phân tích SGK (BBT)" để xem lời giải.
-        </div>
-      </div>
-
-      <div class="plot-block">
-        <div class="label">Đồ thị (f)</div>
-        <div id="plotRoot" class="plot-root" role="img" aria-label="Đồ thị hàm số"></div>
-        <div class="plot-controls">
-          <label for="xMin">xMin</label>
-          <input id="xMin" class="plot-range" type="number" value="-6" step="1" />
-          <label for="xMax">xMax</label>
-          <input id="xMax" class="plot-range" type="number" value="6" step="1" />
-          <button id="plotUpdate" class="btn small ghost">Cập nhật</button>
-        </div>
-      </div>
-    </aside>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container">© AI HQD — Demo</div>
   </footer>
 
+  <!-- ============ SCRIPT ============ -->
   <script src="script.js" defer></script>
 </body>
 </html>
-
