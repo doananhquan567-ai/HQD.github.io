@@ -199,3 +199,8 @@ function plotGraph(expr, container) {
     container.innerHTML = `<div class='note'>Không thể vẽ đồ thị. Vui lòng nhập hàm hợp lệ.</div>`;
   }
 }
+<script src="https://cdn.jsdelivr.net/npm/mathjs@11.5.0/lib/browser/math.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script src="script.js"></script>
+
