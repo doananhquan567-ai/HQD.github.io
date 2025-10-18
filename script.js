@@ -1,132 +1,141 @@
-// =============================
-// AI HQD — script.js (v4 Fixed)
-// =============================
+// =======================================================
+// AI HQD — script.js (v5 full)
+// =======================================================
 
-// Lấy các phần tử trong DOM
+// --- Lấy phần tử DOM ---
 const inputExpr = document.getElementById("expr-input");
+const varInput = document.getElementById("var-input");
+const orderInput = document.getElementById("order-input");
 const btnCalc = document.getElementById("calc-btn");
-const btnSGK = document.getElementById("sgk-btn");
 const btnPlot = document.getElementById("plot-btn");
+const btnClear = document.getElementById("clear-btn");
 const latexResult = document.getElementById("latex-result");
 const stepsContainer = document.getElementById("steps-container");
 const tableContainer = document.getElementById("table-container");
+const plotRoot = document.getElementById("plot-root");
 
-// Hàm hiển thị kết quả bằng MathJax
-function renderMath(latex, container) {
-  container.innerHTML = `\\(${latex}\\)`;
-  if (window.MathJax) MathJax.typesetPromise([container]);
+// --- Hàm hiển thị công thức bằng KaTeX ---
+function renderLatex(latex, el) {
+  try {
+    katex.render(latex, el, { throwOnError: false });
+  } catch {
+    el.textContent = latex;
+  }
 }
 
-// Hàm tính đạo hàm SGK
-btnCalc.addEventListener("click", () => {
+// --- Hàm tính đạo hàm ---
+function computeDerivative() {
   const expr = inputExpr.value.trim();
+  const variable = varInput.value.trim() || "x";
+  const order = parseInt(orderInput.value);
+
   if (!expr) {
-    alert("⚠️ Hãy nhập biểu thức f(x)!");
+    alert("Vui lòng nhập biểu thức hàm số!");
     return;
   }
 
   try {
-    const scope = { x: 1 };
-    const derivative = math.derivative(expr, "x").toString();
-    const simplified = math.simplify(derivative).toString();
+    const node = math.parse(expr);
+    let derivative = node;
 
-    latexResult.innerHTML = `<b>Kết quả:</b> Đạo hàm của f(x) là:`;
-    renderMath(`f'(x) = ${math.parse(simplified).toTex()}`, latexResult);
-
-    stepsContainer.innerHTML = `
-      <h4>🧮 Lời giải từng bước (Chuẩn SGK)</h4>
-      <p><b>Bước 1:</b> Biểu thức ban đầu: \\( f(x) = ${math.parse(expr).toTex()} \\)</p>
-      <p><b>Bước 2:</b> Áp dụng các quy tắc đạo hàm cơ bản (tổng, hiệu, tích, thương, hàm hợp...)</p>
-      <p><b>Bước 3:</b> Đạo hàm: \\( f'(x) = ${math.parse(derivative).toTex()} \\)</p>
-      <p><b>Bước 4:</b> Rút gọn kết quả: \\( f'(x) = ${math.parse(simplified).toTex()} \\)</p>
-    `;
-    MathJax.typesetPromise([stepsContainer]);
-
-    // Reset bảng & đồ thị
-    tableContainer.innerHTML = "";
-    document.getElementById("plot").innerHTML = "";
-  } catch (err) {
-    alert("❌ Lỗi cú pháp trong biểu thức. Vui lòng kiểm tra lại!");
-    console.error(err);
-  }
-});
-
-// Hàm khảo sát SGK (bảng dấu + đồ thị)
-btnSGK.addEventListener("click", () => {
-  const expr = inputExpr.value.trim();
-  if (!expr) return alert("⚠️ Hãy nhập hàm số trước!");
-
-  try {
-    const f = math.parse(expr).compile();
-    const f1 = math.derivative(expr, "x").compile();
-
-    // Tính giá trị tại các điểm
-    const xValues = math.range(-5, 5, 0.5).toArray();
-    const yValues = xValues.map((x) => f.evaluate({ x }));
-    const yPrime = xValues.map((x) => f1.evaluate({ x }));
-
-    // Hiển thị nhận xét SGK
-    stepsContainer.innerHTML = `
-      <h4>📘 Khảo sát hàm số (Chuẩn SGK)</h4>
-      <p>Ta có đạo hàm: \\( f'(x) = ${math.parse(
-        math.derivative(expr, "x").toString()
-      ).toTex()} \\)</p>
-      <p>Xét dấu của \\( f'(x) \\): Nếu dương → hàm đồng biến, âm → nghịch biến.</p>
-    `;
-    MathJax.typesetPromise([stepsContainer]);
-
-    // Tạo bảng dấu đơn giản
-    let htmlTable = `
-      <table border="1" style="margin:auto; border-collapse:collapse;">
-        <tr><th>x</th><th>f'(x)</th><th>f(x)</th></tr>`;
-    for (let i = 0; i < xValues.length; i += 4) {
-      htmlTable += `<tr>
-        <td>${xValues[i].toFixed(1)}</td>
-        <td>${yPrime[i].toFixed(2)}</td>
-        <td>${yValues[i].toFixed(2)}</td>
-      </tr>`;
+    for (let i = 0; i < order; i++) {
+      derivative = math.derivative(derivative, variable);
     }
-    htmlTable += `</table>`;
-    tableContainer.innerHTML = `<h4>Bảng xét dấu / Biến thiên</h4>${htmlTable}`;
 
-    // Vẽ đồ thị bằng Plotly
-    Plotly.newPlot("plot", [
-      { x: xValues, y: yValues, type: "scatter", name: "f(x)", line: { color: "blue" } },
-      { x: xValues, y: yPrime, type: "scatter", name: "f'(x)", line: { color: "red", dash: "dot" } },
-    ], {
-      title: "Đồ thị hàm số và đạo hàm",
-      paper_bgcolor: "#fff",
-      plot_bgcolor: "#fff",
-      xaxis: { title: "x" },
-      yaxis: { title: "y" }
-    });
+    const simplified = math.simplify(derivative);
+    const latex = simplified.toTex();
+
+    renderLatex(latex, latexResult);
+    stepsContainer.innerHTML = `
+      <b>Bước 1:</b> Xét hàm số f(${variable}) = ${expr}<br>
+      <b>Bước 2:</b> Lấy đạo hàm bậc ${order}:<br>
+      f${"'".repeat(order)}(${variable}) = ${latex}<br>
+      <b>Kết luận:</b> Đạo hàm rút gọn: ${latex}
+    `;
   } catch (err) {
-    alert("❌ Lỗi khi khảo sát hoặc vẽ đồ thị!");
-    console.error(err);
+    latexResult.textContent = "Lỗi: không thể tính đạo hàm!";
+    stepsContainer.textContent = err.message;
   }
-});
+}
 
-// Nút vẽ đồ thị riêng
-btnPlot.addEventListener("click", () => {
+// --- Hàm khảo sát & vẽ đồ thị ---
+function plotFunction() {
   const expr = inputExpr.value.trim();
-  if (!expr) return alert("⚠️ Hãy nhập hàm số!");
+  const variable = varInput.value.trim() || "x";
+
+  if (!expr) {
+    alert("Vui lòng nhập hàm số để khảo sát!");
+    return;
+  }
 
   try {
-    const f = math.parse(expr).compile();
+    const f = math.compile(expr);
     const xValues = math.range(-10, 10, 0.1).toArray();
-    const yValues = xValues.map((x) => f.evaluate({ x }));
-
-    Plotly.newPlot("plot", [
-      { x: xValues, y: yValues, type: "scatter", name: "f(x)", line: { color: "blue" } }
-    ], {
-      title: "Đồ thị hàm số",
-      xaxis: { title: "x" },
-      yaxis: { title: "y" },
-      paper_bgcolor: "#fff",
-      plot_bgcolor: "#fff"
+    const yValues = xValues.map((x) => {
+      try {
+        return f.evaluate({ [variable]: x });
+      } catch {
+        return NaN;
+      }
     });
+
+    // Tính đạo hàm bậc 1
+    const d = math.derivative(expr, variable);
+    const dLatex = d.toTex();
+
+    // Cực trị (tìm nghiệm của f'(x)=0)
+    let critical = [];
+    try {
+      const simplified = math.simplify(d);
+      const roots = math
+        .roots(simplified.evaluate ? simplified : math.parse(simplified.toString()))
+        .filter((x) => !isNaN(x));
+      critical = roots;
+    } catch {}
+
+    // Vẽ đồ thị
+    const trace1 = {
+      x: xValues,
+      y: yValues,
+      type: "scatter",
+      mode: "lines",
+      name: `f(${variable})`,
+      line: { color: "#0f4b8a", width: 2.5 },
+    };
+
+    const layout = {
+      title: `Đồ thị hàm số f(${variable}) = ${expr}`,
+      xaxis: { title: variable },
+      yaxis: { title: "f(x)" },
+      paper_bgcolor: "#ffffff",
+      plot_bgcolor: "#ffffff",
+      font: { family: "Montserrat", size: 13 },
+    };
+
+    Plotly.newPlot(plotRoot, [trace1], layout, { responsive: true });
+
+    // Hiển thị thông tin khảo sát
+    tableContainer.innerHTML = `
+      <p><b>Đạo hàm bậc 1:</b> \\(${dLatex}\\)</p>
+      <p><b>Gợi ý khảo sát:</b> Tìm nghiệm của f'(${variable}) = 0 để xác định cực trị.</p>
+      <p><b>Miền khảo sát:</b> x ∈ [-10, 10]</p>
+    `;
+    renderMathInElement(tableContainer);
   } catch (err) {
-    alert("❌ Lỗi khi vẽ đồ thị!");
-    console.error(err);
+    tableContainer.textContent = "Lỗi khi vẽ đồ thị!";
   }
-});
+}
+
+// --- Xóa toàn bộ ---
+function clearAll() {
+  inputExpr.value = "";
+  latexResult.textContent = "—";
+  stepsContainer.textContent = "Nhấn 'Tính đạo hàm' để xem lời giải chi tiết.";
+  tableContainer.textContent = "—";
+  plotRoot.innerHTML = "";
+}
+
+// --- Gán sự kiện ---
+btnCalc.addEventListener("click", computeDerivative);
+btnPlot.addEventListener("click", plotFunction);
+btnClear.addEventListener("click", clearAll);
