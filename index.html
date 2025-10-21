@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI HQD - Trợ lý Toán Học</title>
+  <title>AI HQD – Trợ lý Toán Học</title>
   <link rel="stylesheet" href="style.css">
 
   <!-- Thư viện cần thiết -->
@@ -15,16 +15,16 @@
 </head>
 
 <body>
-  <header class="header">
-    <h1>🤖 AL HQD XIN CHÀO</h1>
-    <p>Trợ lý Giải & Khảo Sát Hàm Số - Chuẩn SGK</p>
+  <header>
+    <h1>🤖 AI HQD XIN CHÀO</h1>
+    <p>Trợ lý Giải & Khảo Sát Hàm Số — Chuẩn SGK</p>
   </header>
 
-  <main class="main-container">
+  <main>
     <section class="input-panel">
-      <input type="text" id="expr-input" placeholder="Nhập hàm số, ví dụ: sin(x^2) hoặc (x^3 - 3x + 2)/(x-1)">
-      
-      <div class="row">
+      <input id="expr-input" placeholder="Nhập hàm số, ví dụ: sin(x^2) + x^3 - 2*x">
+
+      <div class="input-row">
         <label>Biến:</label>
         <input id="var-input" value="x" maxlength="1">
         <label>Bậc đạo hàm:</label>
@@ -36,31 +36,25 @@
       </div>
 
       <div class="button-row">
-        <button id="calc-btn" class="btn primary">🧮 Tính đạo hàm</button>
+        <button id="calc-btn" class="btn blue">🧮 Tính đạo hàm</button>
         <button id="plot-btn" class="btn gold">📈 Vẽ đồ thị</button>
-        <button id="clear-btn" class="btn ghost">🧹 Xóa</button>
+        <button id="clear-btn" class="btn gray">🧹 Xóa</button>
       </div>
     </section>
 
     <section class="output-panel">
-      <div class="result-box">
-        <h2>Kết quả rút gọn</h2>
-        <div id="result-latex" class="math-output">—</div>
-      </div>
+      <h2>Kết quả rút gọn</h2>
+      <div id="result-latex" class="math-box">—</div>
 
-      <div class="steps-box">
-        <h3>Lời giải chi tiết</h3>
-        <div id="steps-container">Nhấn "Tính đạo hàm" để xem hướng dẫn chi tiết.</div>
-      </div>
+      <h3>Lời giải chi tiết</h3>
+      <div id="steps-container" class="steps-box">Nhấn "Tính đạo hàm" để xem kết quả.</div>
 
-      <div class="plot-box">
-        <h3>Đồ thị hàm số</h3>
-        <div id="plot" class="plot"></div>
-      </div>
+      <h3>Đồ thị hàm số</h3>
+      <div id="plot" class="plot"></div>
     </section>
   </main>
 
-  <footer class="footer">
+  <footer>
     © 2025 — Giám đốc sản xuất: <strong>Anh Quân Đẹp Trai</strong>
   </footer>
 
