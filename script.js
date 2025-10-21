@@ -1,85 +1,124 @@
-* { box-sizing: border-box; font-family: "Segoe UI", sans-serif; }
-body { margin: 0; background: #f8fafc; color: #1e293b; }
+// ===========================================
+// AI HQD — script.js (v6 FINAL)
+// ===========================================
 
-header {
-  background: #0f172a;
-  color: #f8fafc;
-  text-align: center;
-  padding: 25px 10px;
-  border-bottom: 4px solid #eab308;
-}
-header h1 { margin: 0; font-size: 2rem; }
-header p { margin-top: 5px; opacity: 0.8; }
+// --- DOM Element References ---
+const exprInput = document.getElementById("expr-input");
+const varInput = document.getElementById("var-input");
+const degreeInput = document.getElementById("degree-input");
+const btnCalc = document.getElementById("calc-btn");
+const btnPlot = document.getElementById("plot-btn");
+const btnClear = document.getElementById("clear-btn");
+const resultContainer = document.getElementById("result-container");
+const plotContainer = document.getElementById("plot-container");
 
-main {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 20px;
-  padding: 30px;
+// --- Helper Functions ---
+function renderMath(content) {
+  resultContainer.innerHTML = content;
+  MathJax.typesetPromise([resultContainer]);
 }
-.input-panel, .output-panel {
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-.input-panel input, select {
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid #94a3b8;
-  font-size: 1rem;
-  outline: none;
-}
-.input-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-}
-.button-row {
-  margin-top: 15px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.btn {
-  border: none;
-  border-radius: 8px;
-  padding: 10px 18px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.btn.blue  { background: #2563eb; color: white; }
-.btn.gold  { background: #eab308; color: white; }
-.btn.gray  { background: #e2e8f0; }
-.btn:hover { opacity: 0.85; }
 
-.math-box {
-  background: #f1f5f9;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 1.3rem;
-  text-align: center;
-  color: #111827;
+function displayError(message) {
+  resultContainer.innerHTML = `<p style="color: #f87171;">⚠️ ${message}</p>`;
 }
-.steps-box {
-  background: #f9fafb;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 1rem;
-  line-height: 1.5;
-}
-.plot { width: 100%; height: 400px; }
 
-footer {
-  text-align: center;
-  padding: 15px;
-  background: #0f172a;
-  color: white;
-  border-top: 4px solid #eab308;
-  font-size: 0.9rem;
+function clearAll() {
+  exprInput.value = "";
+  resultContainer.innerHTML = "";
+  Plotly.purge(plotContainer);
 }
-@media (max-width: 900px) {
-  main { grid-template-columns: 1fr; }
+
+// --- Derivative Calculation Function ---
+function calculateDerivative() {
+  const exprStr = exprInput.value.trim();
+  const variable = varInput.value.trim() || "x";
+  const degree = parseInt(degreeInput.value);
+
+  if (!exprStr) {
+    displayError("Vui lòng nhập hàm số!");
+    return;
+  }
+
+  try {
+    // Parse biểu thức gốc
+    let expr = math.parse(exprStr);
+    let derivative = expr;
+
+    // Tính đạo hàm bậc n
+    for (let i = 0; i < degree; i++) {
+      derivative = math.derivative(derivative, variable);
+    }
+
+    // Rút gọn
+    const simplified = math.simplify(derivative);
+
+    // Hiển thị kết quả
+    const resultHTML = `
+      <div class="label">🧠 Kết quả rút gọn:</div>
+      <div class="result-text">\\(${simplified.toTex()}\\)</div>
+      <div class="steps-container">
+        <b>Lời giải chi tiết:</b><br>
+        Bước 1️⃣: Biểu thức ban đầu \\(${math.parse(exprStr).toTex()}\\)<br>
+        Bước 2️⃣: Đạo hàm ${degree} lần theo biến ${variable}.<br>
+        Bước 3️⃣: Kết quả cuối cùng: \\(${simplified.toTex()}\\)
+      </div>
+    `;
+
+    renderMath(resultHTML);
+  } catch (err) {
+    displayError("Lỗi cú pháp: " + err.message);
+  }
 }
+
+// --- Plot Function ---
+function plotGraph() {
+  const exprStr = exprInput.value.trim();
+  const variable = varInput.value.trim() || "x";
+
+  if (!exprStr) {
+    displayError("Nhập hàm trước khi vẽ đồ thị!");
+    return;
+  }
+
+  try {
+    const node = math.parse(exprStr);
+    const code = node.compile();
+
+    const xValues = math.range(-10, 10, 0.1).toArray();
+    const yValues = xValues.map((x) => {
+      return code.evaluate({ [variable]: x });
+    });
+
+    const trace = {
+      x: xValues,
+      y: yValues,
+      type: "scatter",
+      mode: "lines",
+      name: "f(x)",
+      line: { color: "#3b82f6", width: 3 },
+    };
+
+    const layout = {
+      title: "Đồ thị hàm số",
+      paper_bgcolor: "#0f172a",
+      plot_bgcolor: "#0f172a",
+      font: { color: "#f8fafc" },
+      xaxis: { title: "x", gridcolor: "#334155" },
+      yaxis: { title: "f(x)", gridcolor: "#334155" },
+    };
+
+    Plotly.newPlot(plotContainer, [trace], layout, { responsive: true });
+  } catch (err) {
+    displayError("Không thể vẽ đồ thị: " + err.message);
+  }
+}
+
+// --- Event Listeners ---
+btnCalc.addEventListener("click", calculateDerivative);
+btnPlot.addEventListener("click", plotGraph);
+btnClear.addEventListener("click", clearAll);
+
+// --- Auto Focus on Load ---
+window.addEventListener("load", () => {
+  exprInput.focus();
+});
