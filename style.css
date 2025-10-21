@@ -1,83 +1,237 @@
-// ====================================
-// AI HQD v8 — Đảm bảo chạy 100%
-// ====================================
-const exprInput = document.getElementById("expr-input");
-const varInput = document.getElementById("var-input");
-const orderSelect = document.getElementById("order-select");
-const btnCalc = document.getElementById("calc-btn");
-const btnPlot = document.getElementById("plot-btn");
-const btnClear = document.getElementById("clear-btn");
-const resultBox = document.getElementById("result-latex");
-const stepsBox = document.getElementById("steps-container");
+/* ==========================
+   AI HQD v6 — Style.css
+   ========================== */
 
-// =========== TÍNH ĐẠO HÀM ===========
-btnCalc.onclick = () => {
-  const expr = exprInput.value.trim();
-  const variable = varInput.value.trim() || "x";
-  const order = parseInt(orderSelect.value);
+/* Tổng thể */
+* {
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.2s ease-in-out;
+}
 
-  if (!expr) return alert("⚠️ Vui lòng nhập hàm số trước!");
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0f172a; /* dark navy */
+  color: #f1f5f9; /* almost white */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-  try {
-    // Đạo hàm nhiều bậc
-    let result = math.derivative(expr, variable);
-    for (let i = 1; i < order; i++) {
-      result = math.derivative(result.toString(), variable);
-    }
-    const simplified = math.simplify(result.toString());
+/* Container chung */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-    resultBox.innerHTML = `\\(${math.parse(simplified.toString()).toTex()}\\)`;
-    MathJax.typeset();
+/* ========== HEADER ========== */
+.site-header {
+  background: linear-gradient(90deg, #1e293b, #0f172a);
+  padding: 1rem 0;
+  border-bottom: 3px solid #facc15;
+}
 
-    stepsBox.innerHTML = `
-      <p><b>Bước 1:</b> Hàm ban đầu \\(f(${variable}) = ${math.parse(expr).toTex()}\\)</p>
-      <p><b>Bước 2:</b> Áp dụng quy tắc đạo hàm (tổng, tích, thương, hợp).</p>
-      <p><b>Bước 3:</b> Đạo hàm bậc ${order}: \\(${result.toTex()}\\)</p>
-      <p><b>Bước 4:</b> Rút gọn: \\(${simplified.toTex()}\\)</p>
-    `;
-    MathJax.typeset();
-  } catch (err) {
-    alert("❌ Cú pháp hàm sai! Ví dụ đúng: (x^3 - 3x + 2)/(x-1)");
-    console.error(err);
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  font-size: 2.5rem;
+  margin-right: 0.6rem;
+}
+
+.site-title {
+  font-size: 1.6rem;
+  margin: 0;
+  color: #facc15;
+}
+
+.site-sub {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.signature {
+  text-align: right;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+}
+
+.signature strong {
+  color: #facc15;
+}
+
+/* ========== MAIN GRID ========== */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  flex: 1;
+  margin-top: 2rem;
+}
+
+.card {
+  background-color: #1e293b;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+
+.panel-title {
+  margin-top: 0;
+  font-size: 1.3rem;
+  color: #facc15;
+  border-bottom: 2px solid #facc15;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Inputs & Buttons */
+.expr-input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-bottom: 0.5rem;
+}
+
+.control-inline {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+
+.control-inline label {
+  margin-bottom: 0.25rem;
+}
+
+.small-input {
+  width: 60px;
+  padding: 0.3rem;
+  border-radius: 6px;
+  border: 1px solid #64748b;
+  background-color: #0f172a;
+  color: #f1f5f9;
+  text-align: center;
+}
+
+/* Buttons */
+.btn {
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.btn.primary {
+  background-color: #3b82f6;
+  color: #fff;
+}
+
+.btn.gold {
+  background-color: #facc15;
+  color: #1e293b;
+}
+
+.btn.ghost {
+  background-color: transparent;
+  border: 1px solid #64748b;
+  color: #f1f5f9;
+}
+
+.note {
+  background-color: #334155;
+  border-left: 4px solid #facc15;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #f8fafc;
+  margin-top: 0.8rem;
+}
+
+/* ========== RESULT AREA ========== */
+.label {
+  font-weight: 600;
+  color: #facc15;
+  margin-bottom: 0.4rem;
+}
+
+.result-text {
+  background-color: #0f172a;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  color: #f8fafc;
+  min-height: 2rem;
+  word-break: break-word;
+}
+
+.steps-container {
+  background-color: #0f172a;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  line-height: 1.5;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.plot-root {
+  height: 300px;
+  background-color: #0f172a;
+  border-radius: 8px;
+  margin-top: 0.6rem;
+}
+
+/* ========== FOOTER ========== */
+.site-footer {
+  margin-top: auto;
+  background-color: #1e293b;
+  padding: 1rem 0;
+  text-align: center;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+}
+
+.site-footer strong {
+  color: #facc15;
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+  .main-grid {
+    grid-template-columns: 1fr;
   }
-};
-
-// =========== VẼ ĐỒ THỊ ===========
-btnPlot.onclick = () => {
-  const expr = exprInput.value.trim();
-  const variable = varInput.value.trim() || "x";
-  if (!expr) return alert("⚠️ Nhập hàm cần vẽ trước!");
-
-  try {
-    const compiled = math.compile(expr);
-    const xValues = math.range(-10, 10, 0.1).toArray();
-    const yValues = xValues.map(x => {
-      try { return compiled.evaluate({ [variable]: x }); }
-      catch { return NaN; }
-    });
-
-    Plotly.newPlot("plot", [{
-      x: xValues,
-      y: yValues,
-      mode: "lines",
-      line: { color: "#2563eb", width: 2 }
-    }], {
-      margin: { t: 20 },
-      paper_bgcolor: "white",
-      plot_bgcolor: "white",
-      xaxis: { title: variable },
-      yaxis: { title: "f(" + variable + ")" },
-    });
-  } catch (err) {
-    alert("❌ Không thể vẽ đồ thị!");
-    console.error(err);
+  .signature {
+    text-align: left;
+    margin-top: 0.5rem;
   }
-};
-
-// =========== XÓA ===========
-btnClear.onclick = () => {
-  exprInput.value = "";
-  resultBox.innerHTML = "—";
-  stepsBox.innerHTML = "Nhấn 'Tính đạo hàm' để xem kết quả.";
-  Plotly.purge("plot");
-};
+}
