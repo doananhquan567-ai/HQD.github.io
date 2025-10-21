@@ -1,63 +1,117 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI HQD – Trợ lý Toán Học</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI HQD — Trợ lý Giải & Khảo sát Hàm số (SGK)</title>
+  <meta name="description" content="AI HQD — Giải đạo hàm, khảo sát, vẽ đồ thị. Chuẩn SGK." />
+  
+  <!-- Font (optional) -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <!-- CSS: local file -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Thư viện cần thiết -->
+  <!-- math.js (symbolic & numeric) -->
   <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
-  <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async
-          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-</head>
 
+  <!-- Plotly (interactive charts) -->
+  <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+
+  <!-- MathJax for LaTeX rendering -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer></script>
+
+  <meta name="theme-color" content="#0f172a" />
+</head>
 <body>
-  <header>
-    <h1>🤖 AI HQD XIN CHÀO</h1>
-    <p>Trợ lý Giải & Khảo Sát Hàm Số — Chuẩn SGK</p>
+  <!-- HEADER -->
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🤖</div>
+        <div class="brand-text">
+          <h1 class="site-title">AI HQD</h1>
+          <p class="site-sub">Trợ lý Giải Đạo Hàm & Khảo sát hàm số — Chuẩn SGK</p>
+        </div>
+      </div>
+
+      <div class="signature" aria-hidden="false">
+        <div class="greeting">AI HQD kính chào</div>
+        <div class="producer">Giám đốc sản xuất: <strong>ANH QUÂN ĐẸP TRAI</strong></div>
+      </div>
+    </div>
   </header>
 
-  <main>
-    <section class="input-panel">
-      <input id="expr-input" placeholder="Nhập hàm số, ví dụ: sin(x^2) + x^3 - 2*x">
+  <!-- MAIN -->
+  <main class="container main-grid" role="main">
+    <!-- LEFT: Input & controls -->
+    <section class="card panel-left" aria-labelledby="left-title">
+      <h2 id="left-title" class="panel-title">Nhập hàm số</h2>
 
-      <div class="input-row">
-        <label>Biến:</label>
-        <input id="var-input" value="x" maxlength="1">
-        <label>Bậc đạo hàm:</label>
-        <select id="order-select">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>
+      <label for="expr-input" class="sr-only">Biểu thức hàm số</label>
+      <input id="expr-input" class="expr-input" type="text" placeholder="Ví dụ: sin(x^2) + x^3 - 2*x" aria-label="Biểu thức hàm số">
+
+      <div class="controls-row">
+        <div class="control-inline">
+          <label for="var-input">Biến</label>
+          <input id="var-input" class="small-input" type="text" value="x" maxlength="3" aria-label="Biến đạo hàm">
+        </div>
+
+        <div class="control-inline">
+          <label for="order-select">Bậc đạo hàm</label>
+          <select id="order-select" class="small-input" aria-label="Bậc đạo hàm">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+
+        <div class="control-actions">
+          <button id="calc-btn" class="btn primary" type="button">🧮 Tính đạo hàm</button>
+          <button id="plot-btn" class="btn gold" type="button">📈 Vẽ đồ thị</button>
+          <button id="clear-btn" class="btn ghost" type="button">🧹 Xóa</button>
+        </div>
       </div>
 
-      <div class="button-row">
-        <button id="calc-btn" class="btn blue">🧮 Tính đạo hàm</button>
-        <button id="plot-btn" class="btn gold">📈 Vẽ đồ thị</button>
-        <button id="clear-btn" class="btn gray">🧹 Xóa</button>
+      <div class="note" aria-hidden="false">
+        <strong>Mẹo:</strong> dùng <code>^</code> cho lũy thừa và <code>*</code> cho nhân. Ví dụ: <code>(x^3 - 3x + 2)/(x-1)</code>
       </div>
     </section>
 
-    <section class="output-panel">
-      <h2>Kết quả rút gọn</h2>
-      <div id="result-latex" class="math-box">—</div>
+    <!-- RIGHT: Results -->
+    <aside class="card panel-right" aria-labelledby="right-title">
+      <h2 id="right-title" class="panel-title">Kết quả & Lời giải (Chuẩn SGK)</h2>
 
-      <h3>Lời giải chi tiết</h3>
-      <div id="steps-container" class="steps-box">Nhấn "Tính đạo hàm" để xem kết quả.</div>
+      <div class="result-summary">
+        <div class="label">Kết quả rút gọn</div>
+        <div id="result-latex" class="result-text" aria-live="polite">—</div>
+      </div>
 
-      <h3>Đồ thị hàm số</h3>
-      <div id="plot" class="plot"></div>
-    </section>
+      <div class="steps-area">
+        <div class="label">Lời giải từng bước</div>
+        <div id="steps-container" class="steps-container">Nhấn "Tính đạo hàm" để xem lời giải chi tiết.</div>
+      </div>
+
+      <div class="plot-area">
+        <div class="label">Đồ thị hàm số</div>
+        <div id="plot" class="plot-root" role="img" aria-label="Đồ thị hàm số"></div>
+      </div>
+    </aside>
   </main>
 
-  <footer>
-    © 2025 — Giám đốc sản xuất: <strong>Anh Quân Đẹp Trai</strong>
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer-inner">
+      © 2025 — Giám đốc sản xuất: <strong>Anh Quân Đẹp Trai</strong>
+    </div>
   </footer>
 
-  <script src="script.js"></script>
+  <!-- Script (local) -->
+  <script src="script.js" defer></script>
 </body>
 </html>
