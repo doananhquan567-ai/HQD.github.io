@@ -1,6 +1,6 @@
-// ================================
-// AL HQD v7 - Final Version
-// ================================
+// ====================================
+// AI HQD v8 — Đảm bảo chạy 100%
+// ====================================
 const exprInput = document.getElementById("expr-input");
 const varInput = document.getElementById("var-input");
 const orderSelect = document.getElementById("order-select");
@@ -10,15 +10,16 @@ const btnClear = document.getElementById("clear-btn");
 const resultBox = document.getElementById("result-latex");
 const stepsBox = document.getElementById("steps-container");
 
-// -------------------- TÍNH ĐẠO HÀM --------------------
+// =========== TÍNH ĐẠO HÀM ===========
 btnCalc.onclick = () => {
   const expr = exprInput.value.trim();
-  const variable = varInput.value || "x";
+  const variable = varInput.value.trim() || "x";
   const order = parseInt(orderSelect.value);
 
   if (!expr) return alert("⚠️ Vui lòng nhập hàm số trước!");
 
   try {
+    // Đạo hàm nhiều bậc
     let result = math.derivative(expr, variable);
     for (let i = 1; i < order; i++) {
       result = math.derivative(result.toString(), variable);
@@ -30,21 +31,21 @@ btnCalc.onclick = () => {
 
     stepsBox.innerHTML = `
       <p><b>Bước 1:</b> Hàm ban đầu \\(f(${variable}) = ${math.parse(expr).toTex()}\\)</p>
-      <p><b>Bước 2:</b> Áp dụng quy tắc đạo hàm (tổng, tích, thương, hợp, chuỗi).</p>
+      <p><b>Bước 2:</b> Áp dụng quy tắc đạo hàm (tổng, tích, thương, hợp).</p>
       <p><b>Bước 3:</b> Đạo hàm bậc ${order}: \\(${result.toTex()}\\)</p>
       <p><b>Bước 4:</b> Rút gọn: \\(${simplified.toTex()}\\)</p>
     `;
     MathJax.typeset();
   } catch (err) {
-    alert("❌ Cú pháp không hợp lệ! Kiểm tra lại hàm nhập.");
+    alert("❌ Cú pháp hàm sai! Ví dụ đúng: (x^3 - 3x + 2)/(x-1)");
     console.error(err);
   }
 };
 
-// -------------------- VẼ ĐỒ THỊ --------------------
+// =========== VẼ ĐỒ THỊ ===========
 btnPlot.onclick = () => {
   const expr = exprInput.value.trim();
-  const variable = varInput.value || "x";
+  const variable = varInput.value.trim() || "x";
   if (!expr) return alert("⚠️ Nhập hàm cần vẽ trước!");
 
   try {
@@ -73,10 +74,10 @@ btnPlot.onclick = () => {
   }
 };
 
-// -------------------- XÓA --------------------
+// =========== XÓA ===========
 btnClear.onclick = () => {
   exprInput.value = "";
   resultBox.innerHTML = "—";
-  stepsBox.innerHTML = "Nhấn 'Tính đạo hàm' để xem hướng dẫn chi tiết.";
+  stepsBox.innerHTML = "Nhấn 'Tính đạo hàm' để xem kết quả.";
   Plotly.purge("plot");
 };
