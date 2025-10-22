@@ -29,57 +29,80 @@
 </head>
 
 <body>
-  <header class="header">
+  <div class="container">
     <h1>🤖 AI HQD</h1>
-    <p>Trợ lý Giải Đạo Hàm & Khảo sát hàm số — Chuẩn SGK</p>
-  </header>
+    <p class="subtitle">Trợ lý Giải Đạo Hàm & Khảo sát hàm số — Chuẩn SGK</p>
 
-  <main class="container">
+    <!-- ==== KHU VỰC NHẬP DỮ LIỆU ==== -->
     <section class="input-section">
-      <h2>Nhập hàm số</h2>
+      <h2>📘 Nhập hàm số</h2>
 
-      <label>Biểu thức hàm số</label>
-      <input id="expression" type="text" placeholder="(x^3 - 3x + 2)/(x - 1)" />
+      <label for="expr-input">Biểu thức hàm số:</label>
+      <input
+        id="expr-input"
+        type="text"
+        placeholder="Ví dụ: (x^3 - 3x + 2)/(x - 1)"
+        autocomplete="off"
+      />
 
-      <div class="controls">
+      <div class="options">
         <label>Biến:</label>
-        <select id="variable">
+        <select id="var-input">
           <option value="x">x</option>
           <option value="y">y</option>
         </select>
 
         <label>Bậc đạo hàm:</label>
-        <select id="order">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>
+        <input
+          id="degree-input"
+          type="number"
+          value="1"
+          min="1"
+          max="5"
+          style="width: 60px"
+        />
       </div>
 
       <div class="buttons">
-        <button id="calcBtn">🧮 Tính đạo hàm</button>
-        <button id="plotBtn">📈 Vẽ đồ thị</button>
-        <button id="clearBtn">❌ Xóa</button>
+        <button id="calc-btn">🧮 Tính đạo hàm</button>
+        <button id="plot-btn">📈 Vẽ đồ thị</button>
+        <button id="clear-btn">❌ Xóa</button>
       </div>
 
       <p class="tip">
-        💡 Mẹo: Dùng ^ cho lũy thừa, * cho nhân. Ví dụ: (x^3 - 3x + 2)/(x-1)
+        💡 <b>Mẹo:</b> Dùng <code>^</code> cho lũy thừa, <code>*</code> cho nhân.  
+        Ví dụ: <code>(x^3 - 3x + 2)/(x - 1)</code>
       </p>
     </section>
 
+    <!-- ==== KẾT QUẢ ==== -->
     <section class="output-section">
-      <h2>Kết quả & Lời giải (Chuẩn SGK)</h2>
-      <div id="result"><em>Kết quả rút gọn sẽ hiện ở đây...</em></div>
-      <div id="steps"></div>
-      <div id="plot" class="plot"></div>
+      <h2>📊 Kết quả & Lời giải (Chuẩn SGK)</h2>
+      <div id="result-container">
+        <em>Kết quả rút gọn sẽ hiển thị tại đây...</em>
+      </div>
+
+      <div id="plot-container" style="margin-top: 20px;"></div>
     </section>
-  </main>
 
-  <footer class="footer">
-    <p>AI HQD kính chào — Giám đốc sản xuất: <strong>ANH QUÂN ĐẸP TRAI</strong> 😎</p>
-  </footer>
+    <footer>
+      <p>AI HQD kính chào — Giám đốc sản xuất: <b>ANH QUÂN ĐẸP TRAI 😎</b></p>
+    </footer>
+  </div>
 
-  <!-- Script chính -->
+  <!-- ==== THƯ VIỆN TOÁN HỌC ==== -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.24.2.min.js"></script>
+
+  <!-- ==== CẤU HÌNH MATHJAX ==== -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <!-- ==== FILE JS CHÍNH ==== -->
   <script src="script.js"></script>
 </body>
-</html>
