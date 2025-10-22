@@ -235,3 +235,57 @@ body {
     margin-top: 0.5rem;
   }
 }
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #0f172a;
+  color: #f8fafc;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 700px;
+  margin: auto;
+}
+
+h1 {
+  color: #60a5fa;
+}
+
+.subtitle {
+  color: #cbd5e1;
+  margin-bottom: 20px;
+}
+
+input, select, button {
+  margin: 5px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: none;
+  font-size: 16px;
+}
+
+input, select {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+
+button {
+  background-color: #2563eb;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background-color: #1d4ed8;
+}
+
+#result-container {
+  background: #1e293b;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 18px;
+}
+
