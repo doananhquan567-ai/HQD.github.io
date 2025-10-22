@@ -3,37 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI HQD — Trợ lý Giải & Khảo sát Hàm số (Chuẩn SGK)</title>
-  <meta name="description" content="AI HQD - Giải đạo hàm, khảo sát, vẽ đồ thị. Chuẩn SGK.">
+  <title>AI HQD — Trợ lý Giải Đạo Hàm & Khảo sát Hàm số</title>
 
-  <!-- Font đẹp -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
 
-  <!-- CSS chính -->
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Thư viện toán học -->
+  <!-- Math.js -->
   <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
+  <!-- Plotly -->
+  <script src="https://cdn.plot.ly/plotly-2.24.2.min.js"></script>
 
-  <!-- Thư viện vẽ đồ thị -->
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
-  <!-- MathJax hiển thị công thức -->
+  <!-- MathJax -->
   <script>
     window.MathJax = {
-      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
+      tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
       svg: { fontCache: 'global' }
     };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
-
 <body>
   <div class="container">
     <h1>🤖 AI HQD</h1>
     <p class="subtitle">Trợ lý Giải Đạo Hàm & Khảo sát hàm số — Chuẩn SGK</p>
 
-    <!-- ==== KHU VỰC NHẬP DỮ LIỆU ==== -->
+    <!-- ==== KHU VỰC NHẬP ==== -->
     <section class="input-section">
       <h2>📘 Nhập hàm số</h2>
 
@@ -53,14 +47,7 @@
         </select>
 
         <label>Bậc đạo hàm:</label>
-        <input
-          id="degree-input"
-          type="number"
-          value="1"
-          min="1"
-          max="5"
-          style="width: 60px"
-        />
+        <input id="degree-input" type="number" value="1" min="1" max="5" style="width: 60px;" />
       </div>
 
       <div class="buttons">
@@ -81,7 +68,6 @@
       <div id="result-container">
         <em>Kết quả rút gọn sẽ hiển thị tại đây...</em>
       </div>
-
       <div id="plot-container" style="margin-top: 20px;"></div>
     </section>
 
@@ -90,19 +76,7 @@
     </footer>
   </div>
 
-  <!-- ==== THƯ VIỆN TOÁN HỌC ==== -->
-  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
-  <script src="https://cdn.plot.ly/plotly-2.24.2.min.js"></script>
-
-  <!-- ==== CẤU HÌNH MATHJAX ==== -->
-  <script>
-    window.MathJax = {
-      tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
-      svg: { fontCache: 'global' }
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-
-  <!-- ==== FILE JS CHÍNH ==== -->
+  <!-- ==== SCRIPT CHÍNH ==== -->
   <script src="script.js"></script>
 </body>
+</html>
