@@ -117,15 +117,22 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 <script>
-  MathJax = {
-    tex: { inlineMath: [['\\(', '\\)']] },
+  <!-- ====== THƯ VIỆN TOÁN HỌC ====== -->
+<script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.24.2.min.js"></script>
+
+<!-- ====== CẤU HÌNH MATHJAX ====== -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
     svg: { fontCache: 'global' }
   };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
+<!-- ====== CHẠY FILE JS CHÍNH ====== -->
 <script src="script.js"></script>
 </body>
 
-</html>
+
 
