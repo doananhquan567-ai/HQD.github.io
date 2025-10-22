@@ -321,5 +321,14 @@ button:hover {
 .sub-btn:hover {
   background: #0d9488;
 }
+.rule-box {
+  background: #0f172a;
+  border-left: 4px solid #22d3ee;
+  padding: 10px;
+  border-radius: 10px;
+  margin: 10px 0;
+  color: #f8fafc;
+}
+
 
 
