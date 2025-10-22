@@ -288,4 +288,38 @@ button:hover {
   margin-top: 10px;
   font-size: 18px;
 }
+.bt-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  text-align: center;
+  color: #f8fafc;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+}
+.bt-table th, .bt-table td {
+  border: 1px solid #334155;
+  padding: 6px;
+}
+.bt-container {
+  margin-top: 15px;
+  margin-bottom: 10px;
+  background: #0f172a;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 0 5px #1e293b;
+}
+.sub-btn {
+  background: #14b8a6;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.sub-btn:hover {
+  background: #0d9488;
+}
+
 
